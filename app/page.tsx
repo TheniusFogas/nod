@@ -39,23 +39,16 @@ function formatDate(d: string) {
   });
 }
 
-const PLACEHOLDER_IMG = "https://images.unsplash.com/photo-1561731216-c3a4d99437d5?w=900&q=80";
-const HERO_SLIDES = [
-  {
-    img: "https://images.unsplash.com/photo-1561731216-c3a4d99437d5?w=1800&q=80",
-    eyebrow: "Currently on View",
-    title: "NOD FLOW Gallery",
-    subtitle: "Contemporary art in dialogue",
-  },
-  {
-    img: "https://images.unsplash.com/photo-1518998053901-5348d3961a04?w=1800&q=80",
-    eyebrow: "Open Exhibition",
-    title: "Space & Form",
-    subtitle: "A new perspective on abstraction",
-  },
-];
+interface HeroSlide {
+  img: string; eyebrow: string; title: string; subtitle: string; link?: string;
+}
+
+interface SettingsData {
+  heroSlides: HeroSlide[];
+}
 
 export default function HomePage() {
+  const [settings, setSettings] = useState<SettingsData | null>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [exhibitions, setExhibitions] = useState<Exhibition[]>([]);
   const [news, setNews] = useState<NewsItem[]>([]);
@@ -64,17 +57,19 @@ export default function HomePage() {
   const [subscribed, setSubscribed] = useState(false);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((p) => (p + 1) % HERO_SLIDES.length);
-    }, 6000);
-    return () => clearInterval(timer);
-  }, []);
-
-  useEffect(() => {
+    fetch("/api/settings").then((r) => r.json()).then(setSettings).catch(() => { });
     fetch("/api/exhibitions").then((r) => r.json()).then(setExhibitions).catch(() => { });
     fetch("/api/news").then((r) => r.json()).then(setNews).catch(() => { });
     fetch("/api/open-calls").then((r) => r.json()).then(setOpenCalls).catch(() => { });
   }, []);
+
+  useEffect(() => {
+    if (!settings?.heroSlides?.length) return;
+    const timer = setInterval(() => {
+      setCurrentSlide((p) => (p + 1) % settings.heroSlides.length);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, [settings]);
 
   const current = exhibitions.filter((e) => e.type === "current").slice(0, 3);
   const upcoming = exhibitions.filter((e) => e.type === "upcoming").slice(0, 3);
@@ -91,7 +86,8 @@ export default function HomePage() {
     setSubscribed(true);
   }
 
-  const slide = HERO_SLIDES[currentSlide];
+  const slides = settings?.heroSlides || [];
+  const slide = slides[currentSlide];
 
   return (
     <>
@@ -99,23 +95,27 @@ export default function HomePage() {
 
       {/* ── Hero ── */}
       <section className="hero">
-        <img
-          key={currentSlide}
-          src={slide.img}
-          alt="Exhibition"
-          className="hero__img"
-          style={{ animation: "fadeUp 1.2s ease forwards" }}
-        />
-        <div className="hero__content">
-          <div className="hero__eyebrow fade-up">{slide.eyebrow}</div>
-          <h1 className="hero__title fade-up fade-up-delay-1">{slide.title}</h1>
-          <p className="hero__subtitle fade-up fade-up-delay-2">{slide.subtitle}</p>
-          <Link href="/exhibitions" className="hero__cta fade-up fade-up-delay-3">
-            View Exhibitions <span>→</span>
-          </Link>
-        </div>
+        {slide && (
+          <>
+            <img
+              key={currentSlide}
+              src={slide.img}
+              alt="Exhibition"
+              className="hero__img"
+              style={{ animation: "fadeUp 1.2s ease forwards" }}
+            />
+            <div className="hero__content">
+              <div className="hero__eyebrow fade-up">{slide.eyebrow}</div>
+              <h1 className="hero__title fade-up fade-up-delay-1">{slide.title}</h1>
+              <p className="hero__subtitle fade-up fade-up-delay-2">{slide.subtitle}</p>
+              <Link href={slide.link || "/exhibitions"} className="hero__cta fade-up fade-up-delay-3">
+                View More <span>→</span>
+              </Link>
+            </div>
+          </>
+        )}
         <div className="hero__indicators">
-          {HERO_SLIDES.map((_, i) => (
+          {slides.map((_, i) => (
             <button
               key={i}
               className={`hero__dot ${i === currentSlide ? "active" : ""}`}
@@ -125,6 +125,7 @@ export default function HomePage() {
           ))}
         </div>
       </section>
+
 
       {/* ── Current Exhibitions ── */}
       <section className="section">
