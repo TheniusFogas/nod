@@ -30,15 +30,19 @@ interface SettingsData {
 
 export default function AdminSettingsPage() {
     const [settings, setSettings] = useState<SettingsData | null>(null);
+    const [original, setOriginal] = useState<SettingsData | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState("");
+
+    const isDirty = JSON.stringify(settings) !== JSON.stringify(original);
 
     useEffect(() => {
         fetch("/api/settings")
             .then((r) => r.json())
             .then((data) => {
                 setSettings(data);
+                setOriginal(data);
                 setLoading(false);
             });
     }, []);
@@ -47,14 +51,19 @@ export default function AdminSettingsPage() {
         if (e) e.preventDefault();
         if (!settings) return;
         setSaving(true); setMessage("");
+        console.log("Saving settings payload:", settings);
         try {
             const res = await fetch("/api/settings", {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(settings),
             });
-            if (res.ok) setMessage("Settings saved successfully.");
-            else setMessage("Error saving settings.");
+            if (res.ok) {
+                setMessage("Settings saved successfully.");
+                setOriginal(settings);
+            } else {
+                setMessage("Error saving settings.");
+            }
         } catch (e) {
             setMessage("Connection error.");
         }
@@ -107,15 +116,28 @@ export default function AdminSettingsPage() {
         setSettings({ ...settings, heroSlides: newSlides });
     }
 
+    function moveSlide(index: number, direction: "up" | "down") {
+        if (!settings) return;
+        const newSlides = [...settings.heroSlides];
+        const newIndex = direction === "up" ? index - 1 : index + 1;
+        if (newIndex < 0 || newIndex >= newSlides.length) return;
+
+        [newSlides[index], newSlides[newIndex]] = [newSlides[newIndex], newSlides[index]];
+        setSettings({ ...settings, heroSlides: newSlides });
+    }
+
     if (loading) return <div className="p-8">Loading settings...</div>;
 
     return (
         <div className="admin-container">
             <div className="admin-header">
                 <h1 className="admin-title">Site Configuration</h1>
-                <button className="btn btn--dark" onClick={() => handleSave()} disabled={saving}>
-                    {saving ? "Saving..." : "Save All Changes"}
-                </button>
+                <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                    {isDirty && <span style={{ color: "var(--accent-dark)", fontSize: "0.85rem", fontWeight: 600 }}>● Unsaved changes</span>}
+                    <button className="btn btn--dark" onClick={() => handleSave()} disabled={saving || !isDirty}>
+                        {saving ? "Saving..." : "Save All Changes"}
+                    </button>
+                </div>
             </div>
 
             {message && (
@@ -143,15 +165,35 @@ export default function AdminSettingsPage() {
                                 padding: "24px", border: "1px solid var(--grey-100)", borderRadius: "2px",
                                 position: "relative", background: "#fff"
                             }}>
-                                <button
-                                    onClick={() => removeSlide(i)}
-                                    style={{
-                                        position: "absolute", top: "12px", right: "12px",
-                                        color: "#ef4444", border: "none", background: "none", cursor: "pointer", fontSize: "0.7rem"
-                                    }}
-                                >
-                                    REMOVE SLIDE
-                                </button>
+                                <div style={{
+                                    position: "absolute", top: "12px", right: "12px",
+                                    display: "flex", gap: "10px", alignItems: "center"
+                                }}>
+                                    <div style={{ display: "flex", gap: "4px" }}>
+                                        <button
+                                            onClick={() => moveSlide(i, "up")}
+                                            disabled={i === 0}
+                                            style={{ cursor: i === 0 ? "default" : "pointer", opacity: i === 0 ? 0.3 : 1, border: "1px solid var(--grey-100)", background: "#fff", padding: "2px 6px", fontSize: "0.7rem" }}
+                                        >
+                                            ▲
+                                        </button>
+                                        <button
+                                            onClick={() => moveSlide(i, "down")}
+                                            disabled={i === settings.heroSlides.length - 1}
+                                            style={{ cursor: i === settings.heroSlides.length - 1 ? "default" : "pointer", opacity: i === settings.heroSlides.length - 1 ? 0.3 : 1, border: "1px solid var(--grey-100)", background: "#fff", padding: "2px 6px", fontSize: "0.7rem" }}
+                                        >
+                                            ▼
+                                        </button>
+                                    </div>
+                                    <button
+                                        onClick={() => removeSlide(i)}
+                                        style={{
+                                            color: "#ef4444", border: "none", background: "none", cursor: "pointer", fontSize: "0.7rem", fontWeight: 600
+                                        }}
+                                    >
+                                        REMOVE
+                                    </button>
+                                </div>
                                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1.5fr", gap: "24px" }}>
                                     <div>
                                         <label className="form-label">Slide Image</label>

@@ -7,6 +7,7 @@ const TeamMemberSchema = new Schema({
     photo: { type: String },
     order: { type: Number, default: 0 },
     email: { type: String },
+    website: { type: String },
 }, { timestamps: true });
 
 export default models.TeamMember || mongoose.model('TeamMember', TeamMemberSchema);

@@ -40,6 +40,11 @@ export default function AdminArtists() {
         load();
     }
 
+    const ensureExternalLink = (url: string) => {
+        if (!url) return "";
+        return url.startsWith("http") ? url : `https://${url}`;
+    };
+
     return (
         <>
             <div className="admin-header">
@@ -57,7 +62,7 @@ export default function AdminArtists() {
                             <tr key={a._id}>
                                 <td style={{ fontFamily: "var(--font-serif)" }}>{a.name}</td>
                                 <td>{a.nationality || "—"}</td>
-                                <td>{a.website ? <a href={a.website} target="_blank" rel="noopener" style={{ color: "var(--accent-dark)", fontSize: "0.8rem" }}>↗ Site</a> : "—"}</td>
+                                <td>{a.website ? <a href={ensureExternalLink(a.website)} target="_blank" rel="noopener" style={{ color: "var(--accent-dark)", fontSize: "0.8rem" }}>↗ Site</a> : "—"}</td>
                                 <td>
                                     <div style={{ display: "flex", gap: 8 }}>
                                         <button onClick={() => openEdit(a)} className="btn btn--outline" style={{ padding: "6px 14px", fontSize: "0.7rem" }}>Edit</button>

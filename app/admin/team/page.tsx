@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 
-const EMPTY = { name: "", role: "", bio: "", photo: "", email: "", order: 0 };
+const EMPTY = { name: "", role: "", bio: "", photo: "", email: "", website: "", order: 0 };
 
 export default function AdminTeam() {
     const [team, setTeam] = useState<any[]>([]);
@@ -18,7 +18,11 @@ export default function AdminTeam() {
 
     function openNew() { setForm(EMPTY); setEditing(null); setShowModal(true); }
     function openEdit(m: any) {
-        setForm({ name: m.name || "", role: m.role || "", bio: m.bio || "", photo: m.photo || "", email: m.email || "", order: m.order || 0 });
+        setForm({
+            name: m.name || "", role: m.role || "", bio: m.bio || "",
+            photo: m.photo || "", email: m.email || "", website: m.website || "",
+            order: m.order || 0
+        });
         setEditing(m); setShowModal(true);
     }
 
@@ -38,6 +42,11 @@ export default function AdminTeam() {
         load();
     }
 
+    const ensureExternalLink = (url: string) => {
+        if (!url) return "";
+        return url.startsWith("http") ? url : `https://${url}`;
+    };
+
     return (
         <>
             <div className="admin-header">
@@ -46,16 +55,21 @@ export default function AdminTeam() {
             </div>
             <div className="admin-card" style={{ padding: 0 }}>
                 <table className="admin-table">
-                    <thead><tr><th>Name</th><th>Role</th><th>Email</th><th>Order</th><th>Actions</th></tr></thead>
+                    <thead><tr><th>Name</th><th>Role</th><th>Email</th><th>Website</th><th>Order</th><th>Actions</th></tr></thead>
                     <tbody>
                         {team.length === 0 && (
-                            <tr><td colSpan={5} style={{ textAlign: "center", color: "var(--grey-600)", fontStyle: "italic" }}>No team members yet.</td></tr>
+                            <tr><td colSpan={6} style={{ textAlign: "center", color: "var(--grey-600)", fontStyle: "italic" }}>No team members yet.</td></tr>
                         )}
                         {team.map((m) => (
                             <tr key={m._id}>
                                 <td style={{ fontFamily: "var(--font-serif)" }}>{m.name}</td>
                                 <td style={{ fontSize: "0.85rem", color: "var(--grey-400)" }}>{m.role}</td>
                                 <td style={{ fontSize: "0.8rem" }}>{m.email || "—"}</td>
+                                <td style={{ fontSize: "0.8rem" }}>
+                                    {m.website ? (
+                                        <a href={ensureExternalLink(m.website)} target="_blank" rel="noopener" style={{ color: "var(--accent-dark)" }}>↗ Site</a>
+                                    ) : "—"}
+                                </td>
                                 <td>{m.order}</td>
                                 <td>
                                     <div style={{ display: "flex", gap: 8 }}>
@@ -90,9 +104,13 @@ export default function AdminTeam() {
                                     <input className="form-input" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
                                 </div>
                                 <div className="form-group">
-                                    <label className="form-label">Display Order</label>
-                                    <input className="form-input" type="number" value={form.order} onChange={(e) => setForm({ ...form, order: parseInt(e.target.value) })} />
+                                    <label className="form-label">Website</label>
+                                    <input className="form-input" placeholder="www.site.com" value={form.website} onChange={(e) => setForm({ ...form, website: e.target.value })} />
                                 </div>
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Display Order</label>
+                                <input className="form-input" type="number" value={form.order} onChange={(e) => setForm({ ...form, order: parseInt(e.target.value) })} />
                             </div>
                             <div className="form-group">
                                 <label className="form-label">Photo URL</label>

@@ -8,6 +8,11 @@ const FALLBACK_PHOTO = "https://images.unsplash.com/photo-1507003211169-0a1dd722
 export default function TeamPage() {
     const [team, setTeam] = useState<any[]>([]);
 
+    const ensureExternalLink = (url: string) => {
+        if (!url) return "";
+        return url.startsWith("http") ? url : `https://${url}`;
+    };
+
     useEffect(() => {
         fetch("/api/team").then((r) => r.json()).then(setTeam).catch(() => { });
     }, []);
@@ -39,8 +44,13 @@ export default function TeamPage() {
                                         <div className="team-card__role">{member.role}</div>
                                         {member.bio && <p className="team-card__bio">{member.bio}</p>}
                                         {member.email && (
-                                            <a href={`mailto:${member.email}`} style={{ fontSize: "0.75rem", color: "var(--grey-600)", marginTop: 8, display: "block" }}>
+                                            <a href={`mailto:${member.email}`} style={{ fontSize: "0.75rem", color: "var(--grey-600)", marginTop: 8, display: "block", textDecoration: "none" }}>
                                                 {member.email}
+                                            </a>
+                                        )}
+                                        {member.website && (
+                                            <a href={ensureExternalLink(member.website)} target="_blank" rel="noopener noreferrer" style={{ fontSize: "0.75rem", color: "var(--accent-dark)", marginTop: 4, display: "block", textDecoration: "none" }}>
+                                                Visit Website ↗
                                             </a>
                                         )}
                                     </div>

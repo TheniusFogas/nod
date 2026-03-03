@@ -9,6 +9,11 @@ export default function ArtistDetailPage() {
     const params = useParams();
     const [artist, setArtist] = useState<any>(null);
 
+    const ensureExternalLink = (url: string) => {
+        if (!url) return "";
+        return url.startsWith("http") ? url : `https://${url}`;
+    };
+
     useEffect(() => {
         fetch("/api/artists")
             .then((r) => r.json())
@@ -46,7 +51,7 @@ export default function ArtistDetailPage() {
                                     </p>
                                 )}
                                 {artist.website && (
-                                    <a href={artist.website} target="_blank" rel="noopener noreferrer" className="btn btn--outline" style={{ marginTop: 16 }}>
+                                    <a href={ensureExternalLink(artist.website)} target="_blank" rel="noopener noreferrer" className="btn btn--outline" style={{ marginTop: 16 }}>
                                         Website →
                                     </a>
                                 )}
