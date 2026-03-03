@@ -13,7 +13,6 @@ export async function POST(req: NextRequest) {
     if (!file) return NextResponse.json({ error: "No file provided" }, { status: 400 });
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    const url = await uploadImage(buffer, folder);
-
-    return NextResponse.json({ url });
+    const result = await uploadImage(buffer, folder);
+    return NextResponse.json(result);
 }
