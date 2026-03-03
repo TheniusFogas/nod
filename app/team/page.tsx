@@ -49,7 +49,12 @@ export default function TeamPage() {
                                             </a>
                                         )}
                                         {member.website && (
-                                            <a href={ensureExternalLink(member.website)} target="_blank" rel="noopener noreferrer" style={{ fontSize: "0.75rem", color: "var(--accent-dark)", marginTop: 4, display: "block", textDecoration: "none" }}>
+                                            <a
+                                                href={ensureExternalLink(member.website)}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                style={{ fontSize: "0.75rem", color: "var(--accent-dark)", marginTop: 4, display: "block", textDecoration: "none" }}
+                                            >
                                                 Visit Website ↗
                                             </a>
                                         )}

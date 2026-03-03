@@ -89,6 +89,7 @@ export default function AdminSettingsPage() {
                 } else if (target === "extra2") {
                     setSettings({ ...settings!, homepageExtra2Image: data.url });
                 }
+                setMessage("Image uploaded! Don't forget to 'Save All Changes' below.");
             }
         } catch (err) {
             console.error("Upload failed", err);
@@ -157,7 +158,14 @@ export default function AdminSettingsPage() {
                 <section className="card">
                     <div className="card__header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                         <h2 className="card__title">Homepage Hero Slideshow</h2>
-                        <button className="btn btn--outline btn--sm" onClick={addSlide}>+ Add Slide</button>
+                        <div style={{ display: "flex", gap: "12px" }}>
+                            <button className="btn btn--outline btn--sm" onClick={addSlide}>+ Add Slide</button>
+                            {isDirty && (
+                                <button className="btn btn--dark btn--sm" onClick={() => handleSave()} disabled={saving}>
+                                    {saving ? "Saving..." : "Save Now"}
+                                </button>
+                            )}
+                        </div>
                     </div>
                     <div className="card__body" style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
                         {settings?.heroSlides.map((slide, i) => (
