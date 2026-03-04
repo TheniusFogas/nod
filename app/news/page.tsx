@@ -11,9 +11,11 @@ function formatDate(d: string) {
 
 export default function NewsPage() {
     const [news, setNews] = useState<any[]>([]);
+    const [cms, setCms] = useState<any>(null);
 
     useEffect(() => {
         fetch("/api/news").then((r) => r.json()).then(setNews).catch(() => { });
+        fetch("/api/pages?slug=news").then((r) => r.json()).then(setCms).catch(() => { });
     }, []);
 
     return (
@@ -22,7 +24,12 @@ export default function NewsPage() {
             <div style={{ paddingTop: "var(--nav-h)" }}>
                 <section className="section">
                     <div className="container">
-                        <h1 style={{ fontFamily: "var(--font-serif)", fontWeight: 400, marginBottom: 64 }}>News & Press</h1>
+                        <div style={{ marginBottom: 64 }}>
+                            <h1 style={{ fontFamily: "var(--font-serif)", fontWeight: 400, marginBottom: 8 }}>
+                                {cms?.title || "News & Press"}
+                            </h1>
+                            {cms?.description && <p className="text-muted">{cms.description}</p>}
+                        </div>
 
                         {news.length === 0 ? (
                             <p style={{ fontStyle: "italic", color: "var(--grey-600)", padding: "80px 0" }}>

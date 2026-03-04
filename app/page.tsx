@@ -252,6 +252,35 @@ export default function HomePage() {
         </section>
       )}
 
+      {/* ── Archive (Past Exhibitions) ── */}
+      {exhibitions.filter(e => e.type === "past").length > 0 && (
+        <section className="section" style={{ borderTop: "1px solid var(--grey-100)" }}>
+          <div className="container">
+            <div className="section-head">
+              <span className="section-head__title">Past Exhibitions</span>
+              <Link href="/exhibitions?type=past" className="section-head__link">
+                View Archive
+              </Link>
+            </div>
+            <div className="exhibition-grid">
+              {exhibitions.filter(e => e.type === "past").slice(0, 3).map((ex) => (
+                <Link href={`/exhibitions/${ex.slug}`} key={ex._id} className="exhibition-card">
+                  <div className="exhibition-card__img-wrap" style={{ background: KAKI }}>
+                    {ex.coverImage && <img src={ex.coverImage} alt={ex.title} className="exhibition-card__img" />}
+                  </div>
+                  <div className="exhibition-card__tag" style={{ color: "var(--grey-500)" }}>Archive</div>
+                  <div className="exhibition-card__title">{ex.title}</div>
+                  <div className="exhibition-card__artist">{ex.artist}</div>
+                  <div className="exhibition-card__dates">
+                    {formatDate(ex.startDate)} — {formatDate(ex.endDate)}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* ── Homepage Extra Section ── */}
       {settings?.homepageExtraContent && settings.homepageExtraContent.trim() !== "" && (
         <section className="section" style={{ background: "var(--cream)" }}>

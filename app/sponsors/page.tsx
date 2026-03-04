@@ -5,9 +5,11 @@ import Footer from "@/components/Footer";
 
 export default function SponsorsPage() {
     const [sponsors, setSponsors] = useState<any[]>([]);
+    const [cms, setCms] = useState<any>(null);
 
     useEffect(() => {
         fetch("/api/sponsors").then((r) => r.json()).then(setSponsors).catch(() => { });
+        fetch("/api/pages?slug=sponsors").then((r) => r.json()).then(setCms).catch(() => { });
     }, []);
 
     const tiers = {
@@ -32,7 +34,7 @@ export default function SponsorsPage() {
                 }}>
                     {items.map(s => (
                         <a key={s._id} href={s.website || "#"} target="_blank" rel="noopener noreferrer" style={{ opacity: 0.7, transition: "opacity 0.3s" }} onMouseEnter={e => e.currentTarget.style.opacity = "1"} onMouseLeave={e => e.currentTarget.style.opacity = "0.7"}>
-                            <img src={s.logo} alt={s.name} style={{ height: size, width: "auto", maxWidth: 220, filter: "grayscale(100%) brightness(0.8)" }} />
+                            <img src={s.logo} alt={s.name} style={{ height: size, width: "auto", maxWidth: 220, objectFit: "contain", filter: "grayscale(100%) brightness(0.8)" }} />
                         </a>
                     ))}
                 </div>
@@ -47,9 +49,11 @@ export default function SponsorsPage() {
                 <section className="section">
                     <div className="container" style={{ maxWidth: 1000 }}>
                         <div style={{ textAlign: "center", marginBottom: 120 }}>
-                            <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "4rem", fontWeight: 400, marginBottom: 24 }}>Partners & Sponsors</h1>
+                            <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "4rem", fontWeight: 400, marginBottom: 24 }}>
+                                {cms?.title || "Partners & Sponsors"}
+                            </h1>
                             <p style={{ color: "var(--grey-400)", maxWidth: 600, margin: "0 auto", lineHeight: 1.6 }}>
-                                We are grateful to our partners whose support allows us to continue bringing groundbreaking contemporary art to our community.
+                                {cms?.description || "We are grateful to our partners whose support allows us to continue bringing groundbreaking contemporary art to our community."}
                             </p>
                         </div>
 

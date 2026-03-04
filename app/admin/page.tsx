@@ -75,6 +75,8 @@ export default function AdminDashboard() {
                     { href: "/admin/newsletter", label: "Send Newsletter", desc: "Compose and send to all subscribers" },
                     { href: "/admin/team", label: "Manage Team", desc: "Update team member profiles" },
                     { href: "/admin/news", label: "Manage News", desc: "Add press and news items" },
+                    { href: "/admin/sponsors", label: "Manage Sponsors", desc: "Update logos and partners" },
+                    { href: "/admin/pages", label: "Page Content (CMS)", desc: "Edit titles, subtitles, and descriptions" },
                 ].map((item) => (
                     <Link href={item.href} key={item.href} style={{ textDecoration: "none" }}>
                         <div className="admin-card" style={{ cursor: "pointer", transition: "border-color 0.3s", borderColor: "rgba(0,0,0,0.06)" }}

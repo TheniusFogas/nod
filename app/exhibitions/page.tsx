@@ -3,6 +3,7 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import dbConnect from "@/lib/db";
 import Exhibition from "@/models/Exhibition";
+import PageContent from "@/models/PageContent";
 
 export const dynamic = "force-dynamic";
 
@@ -23,15 +24,20 @@ export default async function ExhibitionsPage({ searchParams }: { searchParams: 
         filter === "all" ? {} : { type: filter }
     ).sort({ startDate: -1 }).lean();
 
+    const cms = await PageContent.findOne({ slug: "exhibitions" }).lean() as any;
+
     return (
         <>
             <Nav />
             <div style={{ paddingTop: "var(--nav-h)" }}>
                 <section className="section">
                     <div className="container">
-                        <h1 style={{ fontFamily: "var(--font-serif)", fontWeight: 400, marginBottom: 48 }}>
-                            Exhibitions
-                        </h1>
+                        <div style={{ marginBottom: 48 }}>
+                            <h1 style={{ fontFamily: "var(--font-serif)", fontWeight: 400, marginBottom: 8 }}>
+                                {cms?.title || "Exhibitions"}
+                            </h1>
+                            {cms?.description && <p className="text-muted">{cms.description}</p>}
+                        </div>
 
                         {/* Filters */}
                         <div style={{ display: "flex", gap: 8, marginBottom: 56 }}>

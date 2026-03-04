@@ -1,0 +1,14 @@
+import mongoose, { Schema, models } from 'mongoose';
+
+const PageContentSchema = new Schema({
+    slug: { type: String, required: true, unique: true },
+    title: { type: String },
+    subtitle: { type: String },
+    description: { type: String },
+    sidebarTitle: { type: String },
+    sidebarContent: { type: String },
+    seoTitle: { type: String },
+    seoDescription: { type: String },
+}, { timestamps: true });
+
+export default models.PageContent || mongoose.model('PageContent', PageContentSchema);
