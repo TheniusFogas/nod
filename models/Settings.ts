@@ -48,11 +48,10 @@ const SettingsSchema = new mongoose.Schema({
         x: { type: String, default: '' },
     },
     homepageExtraTitle: { type: String },
-    homepageExtraContent: { type: String },
-    homepageExtraImage: { type: String },
-    homepageExtra2Title: { type: String },
     homepageExtra2Content: { type: String },
     homepageExtra2Image: { type: String },
+    googleVerification: { type: String, default: '' },
+    customHeadScripts: { type: String, default: '' },
 }, { timestamps: true });
 
 export default mongoose.models.Settings || mongoose.model('Settings', SettingsSchema);

@@ -20,12 +20,10 @@ interface SettingsData {
     mapUrl: string;
     footerDescription: string;
     footerText: string;
-    homepageExtraTitle: string;
-    homepageExtraContent: string;
-    homepageExtraImage: string;
-    homepageExtra2Title: string;
     homepageExtra2Content: string;
     homepageExtra2Image: string;
+    googleVerification: string;
+    customHeadScripts: string;
 }
 
 export default function AdminSettingsPage() {
@@ -161,7 +159,7 @@ export default function AdminSettingsPage() {
     }
 
     function updateSlide(index: number, field: keyof HeroSlide, value: string) {
-        setSettings(prev => {
+        setSettings((prev: any) => {
             if (!prev) return null;
             const newSlides = [...prev.heroSlides];
             newSlides[index] = { ...newSlides[index], [field]: value };
@@ -170,21 +168,21 @@ export default function AdminSettingsPage() {
     }
 
     function addSlide() {
-        setSettings(prev => prev ? ({
+        setSettings((prev: any) => prev ? ({
             ...prev,
             heroSlides: [...prev.heroSlides, { img: "", eyebrow: "", title: "", subtitle: "" }]
         }) : null);
     }
 
     function removeSlide(index: number) {
-        setSettings(prev => prev ? ({
+        setSettings((prev: any) => prev ? ({
             ...prev,
-            heroSlides: prev.heroSlides.filter((_, i) => i !== index)
+            heroSlides: prev.heroSlides.filter((_: any, i: number) => i !== index)
         }) : null);
     }
 
     function moveSlide(index: number, direction: "up" | "down") {
-        setSettings(prev => {
+        setSettings((prev: any) => {
             if (!prev) return null;
             const newSlides = [...prev.heroSlides];
             const newIndex = direction === "up" ? index - 1 : index + 1;
@@ -645,6 +643,38 @@ export default function AdminSettingsPage() {
                                 />
                             </div>
                         ))}
+                    </div>
+                </section>
+
+                {/* --- SEO & Advanced --- */}
+                <section className="card">
+                    <div className="card__header"><h2 className="card__title">SEO & Advanced Scripts</h2></div>
+                    <div className="card__body" style={{ display: "grid", gap: "24px" }}>
+                        <div className="form-group">
+                            <label className="form-label">Google Site Verification Code</label>
+                            <input
+                                className="form-input"
+                                placeholder="e.g. jZ2S..."
+                                value={settings?.googleVerification || ""}
+                                onChange={(e) => setSettings((prev: any) => prev ? ({ ...prev, googleVerification: e.target.value }) : null)}
+                            />
+                            <p style={{ fontSize: "0.7rem", color: "var(--grey-400)", marginTop: 4 }}>
+                                Find this in Google Search Console &gt; Settings &gt; Ownership Verification &gt; HTML Tag.
+                            </p>
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Custom Head Scripts (Google Analytics, etc.)</label>
+                            <textarea
+                                className="form-input"
+                                rows={6}
+                                placeholder="<script>...</script>"
+                                value={settings?.customHeadScripts || ""}
+                                onChange={(e) => setSettings((prev: any) => prev ? ({ ...prev, customHeadScripts: e.target.value }) : null)}
+                            />
+                            <p style={{ fontSize: "0.7rem", color: "var(--grey-400)", marginTop: 4 }}>
+                                BE CAREFUL: This code will be injected directly into the &lt;head&gt; of every page.
+                            </p>
+                        </div>
                     </div>
                 </section>
             </div>
