@@ -128,7 +128,7 @@ export default async function ExhibitionDetailPage({ params }: { params: Promise
                                                     return (
                                                         <div key={i}>
                                                             {a.artist && a.artist.slug ? (
-                                                                <Link href={`/artists/${a.artist.slug}`} style={{ color: "var(--black)", textDecoration: "none", borderBottom: "1px solid transparent", transition: "border 0.2s" }} onMouseEnter={e => e.currentTarget.style.borderBottomColor = "var(--black)"} onMouseLeave={e => e.currentTarget.style.borderBottomColor = "transparent"}>
+                                                                <Link href={`/artists/${a.artist.slug}`} className="artist-detail-link">
                                                                     {a.artist.name || "Unnamed Artist"}
                                                                 </Link>
                                                             ) : (
