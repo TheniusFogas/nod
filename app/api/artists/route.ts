@@ -7,7 +7,36 @@ import Artist from "@/models/Artist";
 
 export async function GET() {
     await dbConnect();
-    const artists = await Artist.find({}).sort({ name: 1 });
+    const now = new Date();
+
+    // Fetch all artists who have NOT expired
+    const artists = await Artist.find({
+        $or: [
+            { visibilityEnd: { $gt: now } },
+            { visibilityEnd: { $exists: false } },
+            { visibilityEnd: null }
+        ]
+    });
+
+    const membershipOrder = { 'Platinum': 1, 'Gold': 2, 'Silver': 3, 'Bronze': 4 };
+
+    artists.sort((a, b) => {
+        const rankA = membershipOrder[a.membership as keyof typeof membershipOrder] || 4;
+        const rankB = membershipOrder[b.membership as keyof typeof membershipOrder] || 4;
+
+        if (rankA !== rankB) return rankA - rankB;
+
+        // If both Platinum, sort by order
+        if (a.membership === 'Platinum') {
+            const orderA = a.order ?? 999;
+            const orderB = b.order ?? 999;
+            if (orderA !== orderB) return orderA - orderB;
+        }
+
+        // Default to alphabetical by name
+        return a.name.localeCompare(b.name);
+    });
+
     return NextResponse.json(artists);
 }
 

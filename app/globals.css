@@ -1113,8 +1113,8 @@ p {
 
 .footer__grid {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
-  gap: 64px;
+  grid-template-columns: 2fr repeat(4, 1fr);
+  gap: 48px;
   margin-bottom: 80px;
 }
 

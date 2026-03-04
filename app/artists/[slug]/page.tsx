@@ -57,19 +57,38 @@ export default function ArtistDetailPage() {
                                 )}
                             </div>
                             <div>
-                                <h1 style={{ fontFamily: "var(--font-serif)", fontWeight: 400, fontSize: "clamp(2rem,4vw,3.5rem)", marginBottom: 32 }}>
+                                <h1 style={{ fontFamily: "var(--font-serif)", fontWeight: 400, fontSize: "clamp(2.5rem,5vw,4rem)", marginBottom: 8, lineHeight: 1.1 }}>
                                     {artist.name}
                                 </h1>
-                                {artist.bio && (
-                                    <p style={{ lineHeight: 1.9, fontSize: "1rem" }}>{artist.bio}</p>
+                                {artist.membership === "Platinum" && (
+                                    <div style={{ fontSize: "0.65rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--accent-dark)", marginBottom: 32 }}>
+                                        Platinum Member
+                                    </div>
                                 )}
-                                {artist.images?.length > 0 && (
+
+                                {artist.bio && (
+                                    <div style={{ fontSize: "1.1rem", fontStyle: "italic", color: "var(--grey-600)", borderLeft: "2px solid var(--accent-light)", paddingLeft: 24, marginBottom: 40, lineHeight: 1.6 }}>
+                                        {artist.bio}
+                                    </div>
+                                )}
+
+                                {artist.content && (
+                                    <div
+                                        className="rich-text"
+                                        style={{ lineHeight: 1.9, fontSize: "1rem", marginBottom: 64 }}
+                                        dangerouslySetInnerHTML={{ __html: artist.content }}
+                                    />
+                                )}
+
+                                {artist.gallery?.length > 0 && (
                                     <>
                                         <hr className="divider" />
-                                        <h3 style={{ fontFamily: "var(--font-serif)", fontWeight: 400, marginBottom: 24 }}>Works</h3>
-                                        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 }}>
-                                            {artist.images.map((img: string, i: number) => (
-                                                <img key={i} src={img} alt={`Work ${i + 1}`} style={{ width: "100%", aspectRatio: "1", objectFit: "cover" }} />
+                                        <h3 style={{ fontFamily: "var(--font-serif)", fontWeight: 400, marginBottom: 32 }}>Artworks</h3>
+                                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 24 }}>
+                                            {artist.gallery.map((img: string, i: number) => (
+                                                <div key={i} style={{ borderRadius: 2, overflow: "hidden", background: "var(--cream)" }}>
+                                                    <img src={img} alt={`${artist.name} Work ${i + 1}`} style={{ width: "100%", height: "auto", display: "block" }} />
+                                                </div>
                                             ))}
                                         </div>
                                     </>

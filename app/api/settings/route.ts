@@ -9,8 +9,35 @@ export async function GET() {
     await dbConnect();
     try {
         let settings = await Settings.findOne();
+        const defaultFooterColumns = [
+            {
+                title: "Exhibitions",
+                links: [
+                    { href: "/exhibitions?type=current", label: "Current" },
+                    { href: "/exhibitions?type=upcoming", label: "Upcoming" },
+                    { href: "/exhibitions?type=past", label: "Archive" },
+                ],
+            },
+            {
+                title: "Gallery",
+                links: [
+                    { href: "/artists", label: "Artists" },
+                    { href: "/team", label: "Team" },
+                    { href: "/sponsors", label: "Sponsors" },
+                    { href: "/news", label: "News & Press" },
+                ],
+            },
+            {
+                title: "Participate",
+                links: [
+                    { href: "/open-calls", label: "Open Calls" },
+                    { href: "/contact", label: "Contact" },
+                    { href: "/contact#visit", label: "Visit Us" },
+                ],
+            },
+        ];
+
         if (!settings) {
-            // Default initial settings
             settings = await Settings.create({
                 heroSlides: [
                     {
@@ -25,8 +52,11 @@ export async function GET() {
                         title: "Space & Form",
                         subtitle: "A new perspective on abstraction",
                     }
-                ]
+                ],
+                footerColumns: defaultFooterColumns
             });
+        } else if (!settings.footerColumns || settings.footerColumns.length === 0) {
+            settings.footerColumns = defaultFooterColumns;
         }
         return NextResponse.json(settings);
     } catch (error) {
