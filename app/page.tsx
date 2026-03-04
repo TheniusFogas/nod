@@ -6,6 +6,8 @@ import Exhibition from "@/models/Exhibition";
 import News from "@/models/News";
 import { OpenCall } from "@/models/OpenCall";
 import Settings from "@/models/Settings";
+import { HeroLoader } from "@/components/HeroLoader";
+import { NewsletterStrip } from "@/components/NewsletterStrip";
 
 function formatDate(d: any) {
   if (!d) return "";
@@ -229,7 +231,3 @@ export default async function HomePage() {
     </>
   );
 }
-
-// Client Component for Hero to handle state
-import { HeroLoader } from "@/components/HeroLoader";
-import { NewsletterStrip } from "@/components/NewsletterStrip";

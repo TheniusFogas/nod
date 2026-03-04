@@ -34,7 +34,7 @@ export default async function ArtistsPage() {
                                         Artist roster coming soon.
                                     </p>
                                 ) : (
-                                    <div className="artist-grid" style={{ gridTemplateColumns: (cms?.sidebarTitle || cms?.sidebarContent) ? "repeat(auto-fill, minmax(200px, 1fr))" : undefined }}>
+                                    <div className={`artist-grid ${(cms?.sidebarTitle || cms?.sidebarContent) ? "artist-grid--with-sidebar" : ""}`}>
                                         {artists.map((a: any) => (
                                             <Link href={`/artists/${a.slug}`} key={a._id.toString()} className="artist-card">
                                                 <div className="artist-card__img-wrap">
