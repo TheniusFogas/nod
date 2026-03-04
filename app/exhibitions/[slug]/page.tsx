@@ -51,11 +51,15 @@ export default async function ExhibitionDetailPage({ params }: { params: Promise
     await dbConnect();
     const { slug } = await params;
 
-    const exhibition = await Exhibition.findOne({ slug }).populate("artists.artist").lean() as any;
+    const exhibitionDoc = await Exhibition.findOne({ slug }).populate("artists.artist").lean();
 
-    if (!exhibition) {
+    if (!exhibitionDoc) {
         return notFound();
     }
+
+    // SANITIZE DATA FOR CLIENT COMPONENTS
+    // Never pass the raw lean() object directly if it contains Mongoose internals or non-serializable types.
+    const exhibition = JSON.parse(JSON.stringify(exhibitionDoc));
 
     const locName = exhibition.location?.name || (typeof exhibition.location === 'string' ? exhibition.location : "NOD FLOW Gallery");
     const locAddress = exhibition.location?.address || "";
