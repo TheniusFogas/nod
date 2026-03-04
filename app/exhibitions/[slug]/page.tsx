@@ -111,7 +111,7 @@ export default async function ExhibitionDetailPage({ params }: { params: Promise
 
                 <section className="section">
                     <div className="container">
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 80 }} className="exhibition-detail-grid">
+                        <div className="exhibition-detail-grid">
                             <div>
                                 {exhibition.description && (
                                     <>

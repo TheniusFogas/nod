@@ -926,6 +926,20 @@ p {
   cursor: zoom-in;
 }
 
+.exhibition-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 80px;
+}
+
+@media (max-width: 900px) {
+  .exhibition-detail-grid {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+}
+
+
 /* ─── Admin Panel ─────────────────────────────────────────────── */
 .admin-layout {
   display: flex;
