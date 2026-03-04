@@ -6,6 +6,7 @@ import dbConnect from "@/lib/db";
 import Exhibition from "@/models/Exhibition";
 import { notFound } from "next/navigation";
 import { ExhibitionDetailClient } from "@/components/ExhibitionDetailClient";
+import { CalendarButton } from "@/components/CalendarButton";
 
 function formatDate(d: any) {
     if (!d) return "";
@@ -139,20 +140,6 @@ export default async function ExhibitionDetailPage({ params }: { params: Promise
             </section>
 
             <Footer />
-
-            <style jsx>{`
-                @media (max-width: 900px) {
-                    .exhibition-detail-grid {
-                        grid-template-columns: 1fr !important;
-                        gap: 40px !important;
-                    }
-                    aside {
-                        order: -1;
-                    }
-                }
-            `}</style>
         </>
     );
 }
-
-import { CalendarButton } from "@/components/CalendarButton";
