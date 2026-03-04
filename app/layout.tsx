@@ -4,6 +4,7 @@ import "./globals.css";
 import dbConnect from "@/lib/db";
 import Settings from "@/models/Settings";
 import { SettingsProvider } from "@/components/SettingsProvider";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXTAUTH_URL || "https://nodflo.vercel.app"),
@@ -41,6 +42,7 @@ export default async function RootLayout({
         <SettingsProvider settings={settings}>
           {children}
         </SettingsProvider>
+        <Analytics />
       </body>
     </html>
   );
