@@ -36,23 +36,19 @@ export default function AdminNews() {
         setSaving(true);
         try {
             const { _id, __v, ...data } = form;
-            if (editing) {
-                await fetch(`/api/news/${editing._id}`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(data)
-                });
-            } else {
-                await fetch("/api/news", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(data)
-                });
+            const res = await fetch(editing ? `/api/news/${editing._id}` : "/api/news", {
+                method: editing ? "PUT" : "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || "Failed to save news");
             }
             setShowModal(false);
             load();
-        } catch (err) {
-            alert("Failed to save news.");
+        } catch (err: any) {
+            alert("Error: " + err.message);
         } finally {
             setSaving(false);
         }

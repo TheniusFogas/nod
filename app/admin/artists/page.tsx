@@ -28,11 +28,25 @@ export default function AdminArtists() {
 
     async function save() {
         setSaving(true);
-        const { _id, ...cleanForm } = form;
-        const payload = { ...cleanForm, slug: form.slug || slugify(form.name) };
-        if (editing) await fetch(`/api/artists/${editing._id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-        else await fetch("/api/artists", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-        setSaving(false); setShowModal(false); load();
+        try {
+            const { _id, ...cleanForm } = form;
+            const payload = { ...cleanForm, slug: form.slug || slugify(form.name) };
+            const res = await fetch(editing ? `/api/artists/${editing._id}` : "/api/artists", {
+                method: editing ? "PUT" : "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || "Failed to save");
+            }
+            setShowModal(false);
+            load();
+        } catch (err: any) {
+            alert("Error: " + err.message);
+        } finally {
+            setSaving(false);
+        }
     }
 
     async function del(id: string) {

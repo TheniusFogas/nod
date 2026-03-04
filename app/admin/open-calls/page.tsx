@@ -50,14 +50,25 @@ export default function AdminOpenCalls() {
 
     async function save() {
         setSaving(true);
-        const { _id, ...cleanForm } = form as any;
-        const payload = { ...cleanForm, slug: form.slug || slugify(form.title) };
-        if (editing) {
-            await fetch(`/api/open-calls/${editing._id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-        } else {
-            await fetch("/api/open-calls", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+        try {
+            const { _id, ...cleanForm } = form as any;
+            const payload = { ...cleanForm, slug: form.slug || slugify(form.title) };
+            const res = await fetch(editing ? `/api/open-calls/${editing._id}` : "/api/open-calls", {
+                method: editing ? "PUT" : "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || "Failed to save open call");
+            }
+            setShowModal(false);
+            load();
+        } catch (err: any) {
+            alert("Error: " + err.message);
+        } finally {
+            setSaving(false);
         }
-        setSaving(false); setShowModal(false); load();
     }
 
     async function del(id: string) {

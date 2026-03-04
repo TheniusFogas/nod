@@ -38,14 +38,25 @@ export default function AdminExhibitions() {
 
     async function save() {
         setSaving(true);
-        const { _id, ...cleanForm } = form as any;
-        const payload = { ...cleanForm, slug: form.slug || slugify(form.title) };
-        if (editing) {
-            await fetch(`/api/exhibitions/${editing._id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-        } else {
-            await fetch("/api/exhibitions", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+        try {
+            const { _id, ...cleanForm } = form as any;
+            const payload = { ...cleanForm, slug: form.slug || slugify(form.title) };
+            const res = await fetch(editing ? `/api/exhibitions/${editing._id}` : "/api/exhibitions", {
+                method: editing ? "PUT" : "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || "Failed to save exhibition");
+            }
+            setShowModal(false);
+            load();
+        } catch (err: any) {
+            alert("Error: " + err.message);
+        } finally {
+            setSaving(false);
         }
-        setSaving(false); setShowModal(false); load();
     }
 
     async function del(id: string) {

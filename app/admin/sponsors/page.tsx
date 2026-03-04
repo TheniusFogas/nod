@@ -24,10 +24,24 @@ export default function AdminSponsors() {
 
     async function save() {
         setSaving(true);
-        const { _id, ...payload } = form;
-        if (editing) await fetch(`/api/sponsors/${editing._id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-        else await fetch("/api/sponsors", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-        setSaving(false); setShowModal(false); load();
+        try {
+            const { _id, ...payload } = form;
+            const res = await fetch(editing ? `/api/sponsors/${editing._id}` : "/api/sponsors", {
+                method: editing ? "PUT" : "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || "Failed to save sponsor");
+            }
+            setShowModal(false);
+            load();
+        } catch (err: any) {
+            alert("Error: " + err.message);
+        } finally {
+            setSaving(false);
+        }
     }
 
     async function del(id: string) {
