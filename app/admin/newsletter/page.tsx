@@ -23,8 +23,8 @@ export default function AdminNewsletter() {
             headers = ["Phone"];
             rows = subscribers.filter(s => s.phone).map(s => [s.phone]);
         } else {
-            headers = ["Email", "Name", "Phone", "Joined"];
-            rows = subscribers.map(s => [s.email, s.name || "", s.phone || "", new Date(s.createdAt).toISOString()]);
+            headers = ["Email", "Name", "Phone", "Role", "Joined"];
+            rows = subscribers.map(s => [s.email, s.name || "", s.phone || "", s.role || "lover", new Date(s.createdAt).toISOString()]);
         }
 
         const csvContent = [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
@@ -124,18 +124,31 @@ export default function AdminNewsletter() {
                                     <th>Email</th>
                                     <th>Name</th>
                                     <th>Phone</th>
+                                    <th>Category</th>
                                     <th>Since</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {subscribers.length === 0 && (
-                                    <tr><td colSpan={4} style={{ textAlign: "center", color: "var(--grey-600)", fontStyle: "italic", padding: 40 }}>No subscribers yet.</td></tr>
+                                    <tr><td colSpan={5} style={{ textAlign: "center", color: "var(--grey-600)", fontStyle: "italic", padding: 40 }}>No subscribers yet.</td></tr>
                                 )}
                                 {subscribers.map((s) => (
                                     <tr key={s._id}>
                                         <td style={{ fontWeight: 500 }}>{s.email}</td>
                                         <td>{s.name || "—"}</td>
                                         <td>{s.phone || <span style={{ opacity: 0.3 }}>—</span>}</td>
+                                        <td>
+                                            <span style={{
+                                                fontSize: "0.7rem",
+                                                padding: "2px 8px",
+                                                borderRadius: 12,
+                                                background: s.role === 'artist' ? 'rgba(0,0,0,0.05)' : 'none',
+                                                border: s.role === 'artist' ? '1px solid rgba(0,0,0,0.1)' : '1px solid transparent',
+                                                textTransform: "capitalize"
+                                            }}>
+                                                {s.role === "artist" ? "Artist" : "Art Lover"}
+                                            </span>
+                                        </td>
                                         <td style={{ fontSize: "0.8rem", color: "var(--grey-600)" }}>
                                             {new Date(s.createdAt).toLocaleDateString("en-GB")}
                                         </td>

@@ -3,7 +3,7 @@ import { useState } from "react";
 
 export default function NewsletterForm({ title = "Subscribe for Future Exhibitions" }: { title?: string }) {
     const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-    const [form, setForm] = useState({ name: "", email: "", phone: "" });
+    const [form, setForm] = useState({ name: "", email: "", phone: "", role: "lover" });
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
@@ -16,7 +16,7 @@ export default function NewsletterForm({ title = "Subscribe for Future Exhibitio
             });
             if (res.ok) {
                 setStatus("success");
-                setForm({ name: "", email: "", phone: "" });
+                setForm({ name: "", email: "", phone: "", role: "lover" });
             } else {
                 setStatus("error");
             }
@@ -73,11 +73,40 @@ export default function NewsletterForm({ title = "Subscribe for Future Exhibitio
                         style={{ background: "white", borderColor: "rgba(0,0,0,0.05)" }}
                     />
                 </div>
+
+                <div className="form-group">
+                    <label style={{ fontSize: "0.65rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--grey-600)", marginBottom: "12px", display: "block" }}>I am an...</label>
+                    <div style={{ display: "flex", gap: "20px" }}>
+                        <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "0.85rem" }}>
+                            <input
+                                type="radio"
+                                name="role"
+                                value="lover"
+                                checked={form.role === "lover"}
+                                onChange={e => setForm({ ...form, role: e.target.value })}
+                                style={{ accentColor: "var(--black)" }}
+                            />
+                            Art Lover / Collector
+                        </label>
+                        <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "0.85rem" }}>
+                            <input
+                                type="radio"
+                                name="role"
+                                value="artist"
+                                checked={form.role === "artist"}
+                                onChange={e => setForm({ ...form, role: e.target.value })}
+                                style={{ accentColor: "var(--black)" }}
+                            />
+                            Artist
+                        </label>
+                    </div>
+                </div>
+
                 <button
                     type="submit"
                     className="btn btn--dark"
                     disabled={status === "loading"}
-                    style={{ marginTop: "8px", width: "100%", justifyContent: "center" }}
+                    style={{ marginTop: "12px", width: "100%", justifyContent: "center" }}
                 >
                     {status === "loading" ? "Subscribing..." : "Join Newsletter"}
                 </button>

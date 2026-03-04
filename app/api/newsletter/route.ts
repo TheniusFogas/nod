@@ -4,13 +4,13 @@ import NewsletterSubscriber from "@/models/NewsletterSubscriber";
 
 export async function POST(req: NextRequest) {
     await dbConnect();
-    const { email, name, phone } = await req.json();
+    const { email, name, phone, role } = await req.json();
     if (!email) return NextResponse.json({ error: "Email required" }, { status: 400 });
 
     try {
         const subscriber = await NewsletterSubscriber.findOneAndUpdate(
             { email },
-            { email, name, phone, isActive: true },
+            { email, name, phone, role, isActive: true },
             { upsert: true, new: true }
         );
         return NextResponse.json({ success: true, subscriber });
