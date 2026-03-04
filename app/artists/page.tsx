@@ -7,11 +7,46 @@ import PageContent from "@/models/PageContent";
 
 const FALLBACK = "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600&q=80";
 
+import type { Metadata } from "next";
+
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+    await dbConnect();
+    const cms = await PageContent.findOne({ slug: "artists" }).lean() as any;
+    const title = cms?.seoTitle || "Artists | NOD FLOW";
+    const description = cms?.seoDescription || cms?.description?.slice(0, 160) || "Artists represented and exhibited by NOD FLOW.";
+    const ogImage = cms?.ogImage || "https://nodflo.com/og-default.jpg";
+
+    return {
+        title,
+        description,
+        openGraph: { title, description, images: [ogImage] }
+    };
+}
 
 export default async function ArtistsPage() {
     await dbConnect();
-    const artists = await Artist.find({}).sort({ membership: 1, order: 1, name: 1 }).lean();
+    // Use aggregation to sort by membership hierarchy
+    const artists = await Artist.aggregate([
+        {
+            $addFields: {
+                membershipRank: {
+                    $switch: {
+                        branches: [
+                            { case: { $eq: ["$membership", "Platinum"] }, then: 1 },
+                            { case: { $eq: ["$membership", "Gold"] }, then: 2 },
+                            { case: { $eq: ["$membership", "Silver"] }, then: 3 },
+                            { case: { $eq: ["$membership", "Bronze"] }, then: 4 }
+                        ],
+                        default: 5
+                    }
+                }
+            }
+        },
+        { $sort: { membershipRank: 1, order: 1, name: 1 } }
+    ]);
+
     const cms = await PageContent.findOne({ slug: "artists" }).lean() as any;
 
     return (

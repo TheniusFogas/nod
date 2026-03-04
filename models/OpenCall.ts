@@ -9,6 +9,9 @@ const OpenCallSchema = new Schema({
     isActive: { type: Boolean, default: true },
     showOnHomepage: { type: Boolean, default: false },
     coverImage: { type: String },
+    seoTitle: { type: String },
+    seoDescription: { type: String },
+    ogImage: { type: String },
 }, { timestamps: true });
 
 const OpenCallApplicationSchema = new Schema({

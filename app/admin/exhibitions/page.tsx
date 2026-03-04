@@ -19,6 +19,9 @@ const EMPTY = {
     pressRelease: "",
     images: [] as string[],
     featured: false,
+    seoTitle: "",
+    seoDescription: "",
+    ogImage: "",
 };
 
 function slugify(str: string) {
@@ -66,6 +69,9 @@ export default function AdminExhibitions() {
             pressRelease: ex.pressRelease || "",
             images: Array.isArray(ex.images) ? ex.images : [],
             featured: ex.featured || false,
+            seoTitle: ex.seoTitle || "",
+            seoDescription: ex.seoDescription || "",
+            ogImage: ex.ogImage || "",
         });
         setEditing(ex);
         setShowModal(true);
@@ -310,6 +316,31 @@ export default function AdminExhibitions() {
                                     <label className="form-label">Press Release / Extra Info</label>
                                     <textarea className="form-textarea" rows={6} value={form.pressRelease}
                                         onChange={(e) => setForm({ ...form, pressRelease: e.target.value })} placeholder="Curatorial text, press details..." />
+                                </div>
+
+                                <div style={{ padding: 20, background: "var(--cream)", borderRadius: 8, border: "1px solid var(--grey-100)" }}>
+                                    <h3 style={{ fontSize: "0.9rem", marginBottom: 16, textTransform: "uppercase", letterSpacing: "0.1em" }}>SEO & Social Media</h3>
+                                    <div className="form-group">
+                                        <label className="form-label">SEO Meta Title</label>
+                                        <input className="form-input" value={form.seoTitle} style={{ background: "white" }} onChange={(e) => setForm({ ...form, seoTitle: e.target.value })} />
+                                    </div>
+                                    <div className="form-group" style={{ marginTop: 12 }}>
+                                        <label className="form-label">SEO Meta Description</label>
+                                        <textarea className="form-textarea" rows={2} style={{ background: "white" }} value={form.seoDescription} onChange={(e) => setForm({ ...form, seoDescription: e.target.value })} />
+                                    </div>
+                                    <div className="form-group" style={{ marginTop: 12 }}>
+                                        <label className="form-label">OG Image (1200x630)</label>
+                                        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                                            <div style={{ width: 80, height: 50, background: "#ddd", borderRadius: 4, overflow: "hidden" }}>
+                                                {form.ogImage ? <img src={form.ogImage} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : null}
+                                            </div>
+                                            <input type="file" onChange={async (e) => {
+                                                const file = e.target.files?.[0]; if (!file) return;
+                                                const res = await fetch(`/api/upload/blob?filename=${encodeURIComponent(file.name)}`, { method: "POST", body: file });
+                                                const data = await res.json(); if (data.url) setForm({ ...form, ogImage: data.url });
+                                            }} />
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div className="form-group">

@@ -1,22 +1,36 @@
-"use client";
-import { useState, useEffect } from "react";
 import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import dbConnect from "@/lib/db";
+import News from "@/models/News";
+import PageContent from "@/models/PageContent";
+import type { Metadata } from "next";
 
-function formatDate(d: string) {
+export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+    await dbConnect();
+    const cms = await PageContent.findOne({ slug: "news" }).lean() as any;
+    const title = cms?.seoTitle || "News & Press | NOD FLOW";
+    const description = cms?.seoDescription || cms?.description?.slice(0, 160) || "Latest news, press releases, and media coverage for NOD FLOW Gallery.";
+    const ogImage = cms?.ogImage || "https://nodflo.com/og-default.jpg";
+
+    return {
+        title,
+        description,
+        openGraph: { title, description, images: [ogImage] }
+    };
+}
+
+function formatDate(d: any) {
     if (!d) return "";
     return new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 }
 
-export default function NewsPage() {
-    const [news, setNews] = useState<any[]>([]);
-    const [cms, setCms] = useState<any>(null);
-
-    useEffect(() => {
-        fetch("/api/news").then((r) => r.json()).then(setNews).catch(() => { });
-        fetch("/api/pages?slug=news").then((r) => r.json()).then(setCms).catch(() => { });
-    }, []);
+export default async function NewsPage() {
+    await dbConnect();
+    const news = await News.find({}).sort({ date: -1 }).lean();
+    const cms = await PageContent.findOne({ slug: "news" }).lean() as any;
 
     return (
         <>
@@ -37,9 +51,9 @@ export default function NewsPage() {
                             </p>
                         ) : (
                             <div className="news-grid">
-                                {news.map((item) => (
+                                {news.map((item: any) => (
                                     <Link
-                                        key={item._id}
+                                        key={item._id.toString()}
                                         href={item.link || (item.content ? `/news/${item._id}` : "#")}
                                         target={item.link ? "_blank" : "_self"}
                                         rel={item.link ? "noopener noreferrer" : ""}

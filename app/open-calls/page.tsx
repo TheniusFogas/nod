@@ -1,23 +1,39 @@
-"use client";
-import { useState, useEffect } from "react";
 import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import dbConnect from "@/lib/db";
+import { OpenCall } from "@/models/OpenCall";
+import PageContent from "@/models/PageContent";
+import type { Metadata } from "next";
 
-function formatDate(d: string) {
+export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+    await dbConnect();
+    const cms = await PageContent.findOne({ slug: "open-calls" }).lean() as any;
+    const title = cms?.seoTitle || "Open Calls | NOD FLOW";
+    const description = cms?.seoDescription || cms?.description?.slice(0, 160) || "Join the NOD FLOW community. Apply for upcoming exhibitions, residencies, and art projects.";
+    const ogImage = cms?.ogImage || "https://nodflo.com/og-default.jpg";
+
+    return {
+        title,
+        description,
+        openGraph: { title, description, images: [ogImage] }
+    };
+}
+
+function formatDate(d: any) {
     if (!d) return "";
     return new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 }
 
-export default function OpenCallsPage() {
-    const [calls, setCalls] = useState<any[]>([]);
+export default async function OpenCallsPage() {
+    await dbConnect();
+    const calls = await OpenCall.find({}).sort({ deadline: -1 }).lean();
+    const cms = await PageContent.findOne({ slug: "open-calls" }).lean() as any;
 
-    useEffect(() => {
-        fetch("/api/open-calls").then((r) => r.json()).then(setCalls).catch(() => { });
-    }, []);
-
-    const active = calls.filter((c) => c.isActive);
-    const closed = calls.filter((c) => !c.isActive);
+    const active = calls.filter((c: any) => c.isActive);
+    const closed = calls.filter((c: any) => !c.isActive);
 
     return (
         <>
@@ -25,11 +41,14 @@ export default function OpenCallsPage() {
             <div style={{ paddingTop: "var(--nav-h)" }}>
                 <section className="section">
                     <div className="container">
-                        <h1 style={{ fontFamily: "var(--font-serif)", fontWeight: 400, marginBottom: 16 }}>Open Calls</h1>
-                        <p style={{ color: "var(--grey-400)", maxWidth: 600, marginBottom: 64, lineHeight: 1.75 }}>
-                            NOD FLOW regularly invites artists to apply for upcoming exhibitions and residency programmes.
-                            Below are our current open calls.
-                        </p>
+                        <div style={{ marginBottom: 64 }}>
+                            <h1 style={{ fontFamily: "var(--font-serif)", fontWeight: 400, marginBottom: 16 }}>
+                                {cms?.title || "Open Calls"}
+                            </h1>
+                            <p style={{ color: "var(--grey-400)", maxWidth: 600, lineHeight: 1.75 }}>
+                                {cms?.description || "NOD FLOW regularly invites artists to apply for upcoming exhibitions and residency programmes. Below are our current open calls."}
+                            </p>
+                        </div>
 
                         {active.length === 0 ? (
                             <div style={{ padding: "80px 0", borderTop: "1px solid rgba(0,0,0,0.08)" }}>
@@ -39,10 +58,10 @@ export default function OpenCallsPage() {
                             </div>
                         ) : (
                             <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                                {active.map((call) => (
+                                {active.map((call: any) => (
                                     <Link
                                         href={`/open-calls/${call.slug}`}
-                                        key={call._id}
+                                        key={call._id.toString()}
                                         style={{
                                             display: "grid", gridTemplateColumns: "1fr auto",
                                             alignItems: "center", gap: 32,
@@ -76,8 +95,8 @@ export default function OpenCallsPage() {
                                     Past Open Calls
                                 </h2>
                                 <div style={{ display: "flex", flexDirection: "column" }}>
-                                    {closed.map((call) => (
-                                        <div key={call._id} style={{ padding: "20px 0", borderTop: "1px solid rgba(0,0,0,0.06)", opacity: 0.55 }}>
+                                    {closed.map((call: any) => (
+                                        <div key={call._id.toString()} style={{ padding: "20px 0", borderTop: "1px solid rgba(0,0,0,0.06)", opacity: 0.55 }}>
                                             <h3 style={{ fontFamily: "var(--font-serif)", fontWeight: 400 }}>{call.title}</h3>
                                             {call.deadline && (
                                                 <p style={{ fontSize: "0.75rem", color: "var(--grey-600)", marginTop: 4 }}>

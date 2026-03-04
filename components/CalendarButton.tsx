@@ -3,8 +3,17 @@
 export function CalendarButton({ exhibition }: { exhibition: any }) {
     if (!exhibition) return null;
 
-    const start = exhibition.startDate ? new Date(exhibition.startDate).toISOString().replace(/-|:|\.\d\d\d/g, "") : "";
-    const end = exhibition.endDate ? new Date(exhibition.endDate).toISOString().replace(/-|:|\.\d\d\d/g, "") : "";
+    const toSafeISO = (d: any) => {
+        try {
+            if (!d) return "";
+            const date = new Date(d);
+            if (isNaN(date.getTime())) return "";
+            return date.toISOString().replace(/-|:|\.\d\d\d/g, "");
+        } catch (e) { return ""; }
+    };
+
+    const start = toSafeISO(exhibition.startDate);
+    const end = toSafeISO(exhibition.endDate);
     const details = exhibition.description || "";
     const locName = exhibition.location?.name || (typeof exhibition.location === 'string' ? exhibition.location : "NOD FLOW Gallery");
     const locAddr = exhibition.location?.address ? `, ${exhibition.location.address}` : "";

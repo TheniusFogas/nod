@@ -16,9 +16,24 @@ function formatDate(d: any) {
   });
 }
 
-const KAKI = "#7a7a5a";
+import PageContent from "@/models/PageContent";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+  await dbConnect();
+  const cms = await PageContent.findOne({ slug: "home" }).lean() as any;
+  const title = cms?.seoTitle || "NOD FLOW | Contemporary Art Gallery";
+  const description = cms?.seoDescription || "NOD FLOW is a contemporary art gallery and creative hub.";
+  const ogImage = cms?.ogImage || "https://nodflo.com/og-default.jpg";
+
+  return {
+    title,
+    description,
+    openGraph: { title, description, images: [ogImage] }
+  };
+}
 
 export default async function HomePage() {
   await dbConnect();

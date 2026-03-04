@@ -250,13 +250,14 @@ p {
 
 .nav__menu-btn span {
   display: block;
-  height: 1px;
+  width: 24px;
+  height: 2px;
   background: var(--black);
-  transition: transform var(--transition), opacity var(--transition), background var(--transition);
+  transition: all 0.3s var(--transition);
 }
 
 .nav--dark .nav__menu-btn span {
-  background: var(--white);
+  background: var(--white) !important;
 }
 
 .nav--scrolled .nav__menu-btn span {
@@ -510,11 +511,11 @@ p {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.7s var(--transition);
+  transition: transform 1.2s cubic-bezier(0.2, 0, 0.2, 1), filter 0.8s ease;
 }
 
 .artist-card:hover .artist-card__img {
-  transform: scale(1.04);
+  transform: scale(1.08);
 }
 
 .artist-card__name {

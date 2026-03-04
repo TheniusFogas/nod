@@ -13,7 +13,38 @@ function formatDate(d: any) {
     return new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 }
 
+import type { Metadata } from "next";
+
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+    await dbConnect();
+    const { slug } = await params;
+    const exhibition = await Exhibition.findOne({ slug }).lean() as any;
+
+    if (!exhibition) return { title: "Exhibition Not Found | NOD FLOW" };
+
+    const title = exhibition.seoTitle || `${exhibition.title} | NOD FLOW`;
+    const description = exhibition.seoDescription || exhibition.description?.slice(0, 160) || "Exhibition at NOD FLOW Gallery.";
+    const ogImage = exhibition.ogImage || exhibition.coverImage || "https://nodflo.com/og-default.jpg";
+
+    return {
+        title,
+        description,
+        openGraph: {
+            title,
+            description,
+            images: [ogImage],
+            type: "article",
+        },
+        twitter: {
+            card: "summary_large_image",
+            title,
+            description,
+            images: [ogImage],
+        }
+    };
+}
 
 export default async function ExhibitionDetailPage({ params }: { params: Promise<{ slug: string }> }) {
     await dbConnect();

@@ -1,21 +1,35 @@
-"use client";
-import { useState, useEffect } from "react";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import dbConnect from "@/lib/db";
+import Sponsor from "@/models/Sponsor";
+import PageContent from "@/models/PageContent";
+import type { Metadata } from "next";
 
-export default function SponsorsPage() {
-    const [sponsors, setSponsors] = useState<any[]>([]);
-    const [cms, setCms] = useState<any>(null);
+export const dynamic = "force-dynamic";
 
-    useEffect(() => {
-        fetch("/api/sponsors").then((r) => r.json()).then(setSponsors).catch(() => { });
-        fetch("/api/pages?slug=sponsors").then((r) => r.json()).then(setCms).catch(() => { });
-    }, []);
+export async function generateMetadata(): Promise<Metadata> {
+    await dbConnect();
+    const cms = await PageContent.findOne({ slug: "sponsors" }).lean() as any;
+    const title = cms?.seoTitle || "Partners & Sponsors | NOD FLOW";
+    const description = cms?.seoDescription || cms?.description?.slice(0, 160) || "Explore our partners and sponsors who support NOD FLOW Gallery.";
+    const ogImage = cms?.ogImage || "https://nodflo.com/og-default.jpg";
+
+    return {
+        title,
+        description,
+        openGraph: { title, description, images: [ogImage] }
+    };
+}
+
+export default async function SponsorsPage() {
+    await dbConnect();
+    const sponsors = await Sponsor.find({}).sort({ tier: 1, name: 1 }).lean();
+    const cms = await PageContent.findOne({ slug: "sponsors" }).lean() as any;
 
     const tiers = {
-        gold: sponsors.filter(s => s.tier === 'gold'),
-        silver: sponsors.filter(s => s.tier === 'silver'),
-        partner: sponsors.filter(s => s.tier === 'partner')
+        gold: sponsors.filter((s: any) => s.tier === 'gold'),
+        silver: sponsors.filter((s: any) => s.tier === 'silver'),
+        partner: sponsors.filter((s: any) => s.tier === 'partner')
     };
 
     const TierSection = ({ title, items, size }: { title: string, items: any[], size: number }) => {
@@ -32,8 +46,8 @@ export default function SponsorsPage() {
                     alignItems: "center",
                     gap: 64
                 }}>
-                    {items.map(s => (
-                        <a key={s._id} href={s.website || "#"} target="_blank" rel="noopener noreferrer" style={{ opacity: 0.7, transition: "opacity 0.3s" }} onMouseEnter={e => e.currentTarget.style.opacity = "1"} onMouseLeave={e => e.currentTarget.style.opacity = "0.7"}>
+                    {items.map((s: any) => (
+                        <a key={s._id.toString()} href={s.website || "#"} target="_blank" rel="noopener noreferrer" className="sponsor-logo-link">
                             <img src={s.logo} alt={s.name} style={{ height: size, width: "auto", maxWidth: 220, objectFit: "contain", filter: "grayscale(100%) brightness(0.8)" }} />
                         </a>
                     ))}
@@ -70,6 +84,15 @@ export default function SponsorsPage() {
                 </section>
             </div>
             <Footer />
+            <style jsx>{`
+                .sponsor-logo-link {
+                    opacity: 0.7;
+                    transition: opacity 0.3s;
+                }
+                .sponsor-logo-link:hover {
+                    opacity: 1;
+                }
+            `}</style>
         </>
     );
 }

@@ -6,7 +6,23 @@ import PageContent from "@/models/PageContent";
 
 const FALLBACK_PHOTO = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80";
 
+import type { Metadata } from "next";
+
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+    await dbConnect();
+    const cms = await PageContent.findOne({ slug: "team" }).lean() as any;
+    const title = cms?.seoTitle || "Team | NOD FLOW";
+    const description = cms?.seoDescription || cms?.description?.slice(0, 160) || "The curators and coordinators behind NOD FLOW Gallery.";
+    const ogImage = cms?.ogImage || "https://nodflo.com/og-default.jpg";
+
+    return {
+        title,
+        description,
+        openGraph: { title, description, images: [ogImage] }
+    };
+}
 
 export default async function TeamPage() {
     await dbConnect();

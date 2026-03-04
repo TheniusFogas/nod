@@ -5,7 +5,23 @@ import dbConnect from "@/lib/db";
 import Exhibition from "@/models/Exhibition";
 import PageContent from "@/models/PageContent";
 
+import type { Metadata } from "next";
+
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+    await dbConnect();
+    const cms = await PageContent.findOne({ slug: "exhibitions" }).lean() as any;
+    const title = cms?.seoTitle || "Exhibitions | NOD FLOW";
+    const description = cms?.seoDescription || cms?.description?.slice(0, 160) || "Explore current and upcoming exhibitions at NOD FLOW.";
+    const ogImage = cms?.ogImage || "https://nodflo.com/og-default.jpg";
+
+    return {
+        title,
+        description,
+        openGraph: { title, description, images: [ogImage] }
+    };
+}
 
 function formatDate(d: string) {
     if (!d) return "";

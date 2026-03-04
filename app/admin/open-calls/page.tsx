@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 
-const EMPTY = { title: "", slug: "", description: "", requirements: "", deadline: "", isActive: true, showOnHomepage: false, coverImage: "" };
+const EMPTY = { title: "", slug: "", description: "", requirements: "", deadline: "", isActive: true, showOnHomepage: false, coverImage: "", seoTitle: "", seoDescription: "", ogImage: "" };
 
 function slugify(str: string) {
     return str.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
@@ -43,7 +43,8 @@ export default function AdminOpenCalls() {
         setForm({
             title: c.title || "", slug: c.slug || "", description: c.description || "",
             requirements: c.requirements || "", deadline: c.deadline?.slice(0, 10) || "",
-            isActive: c.isActive ?? true, showOnHomepage: c.showOnHomepage ?? false, coverImage: c.coverImage || ""
+            isActive: c.isActive ?? true, showOnHomepage: c.showOnHomepage ?? false, coverImage: c.coverImage || "",
+            seoTitle: c.seoTitle || "", seoDescription: c.seoDescription || "", ogImage: c.ogImage || ""
         });
         setEditing(c); setShowModal(true);
     }
@@ -263,6 +264,31 @@ export default function AdminOpenCalls() {
                                 <label className="form-label">Requirements</label>
                                 <textarea className="form-textarea" rows={4} value={form.requirements}
                                     onChange={(e) => setForm({ ...form, requirements: e.target.value })} />
+                            </div>
+
+                            <div style={{ padding: 20, background: "var(--cream)", borderRadius: 8, border: "1px solid var(--grey-100)" }}>
+                                <h3 style={{ fontSize: "0.9rem", marginBottom: 16, textTransform: "uppercase", letterSpacing: "0.1em" }}>SEO & Social Media</h3>
+                                <div className="form-group">
+                                    <label className="form-label">SEO Meta Title</label>
+                                    <input className="form-input" value={form.seoTitle} style={{ background: "white" }} onChange={(e) => setForm({ ...form, seoTitle: e.target.value })} />
+                                </div>
+                                <div className="form-group" style={{ marginTop: 12 }}>
+                                    <label className="form-label">SEO Meta Description</label>
+                                    <textarea className="form-textarea" rows={2} style={{ background: "white" }} value={form.seoDescription} onChange={(e) => setForm({ ...form, seoDescription: e.target.value })} />
+                                </div>
+                                <div className="form-group" style={{ marginTop: 12 }}>
+                                    <label className="form-label">OG Image (1200x630)</label>
+                                    <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                                        <div style={{ width: 80, height: 50, background: "#ddd", borderRadius: 4, overflow: "hidden" }}>
+                                            {form.ogImage ? <img src={form.ogImage} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : null}
+                                        </div>
+                                        <input type="file" onChange={async (e) => {
+                                            const file = e.target.files?.[0]; if (!file) return;
+                                            const res = await fetch(`/api/upload/blob?filename=${encodeURIComponent(file.name)}`, { method: "POST", body: file });
+                                            const data = await res.json(); if (data.url) setForm({ ...form, ogImage: data.url });
+                                        }} />
+                                    </div>
+                                </div>
                             </div>
                             <div style={{ display: "flex", gap: 12, justifyContent: "flex-end" }}>
                                 <button onClick={() => setShowModal(false)} className="btn btn--outline">Cancel</button>

@@ -21,6 +21,9 @@ const ExhibitionSchema = new Schema({
     images: [{ type: String }],
     description: { type: String },
     pressRelease: { type: String },
+    seoTitle: { type: String },
+    seoDescription: { type: String },
+    ogImage: { type: String },
     featured: { type: Boolean, default: false },
 }, { timestamps: true });
 

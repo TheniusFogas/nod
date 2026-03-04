@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 
 const PAGES = [
+    { slug: "home", name: "Home Page" },
     { slug: "artists", name: "Artists Page" },
     { slug: "exhibitions", name: "Exhibitions Page" },
     { slug: "team", name: "Team Page" },
@@ -22,7 +23,7 @@ export default function AdminPages() {
 
     const edit = (slug: string) => {
         const existing = pageConfigs.find(p => p.slug === slug);
-        setEditing(existing || { slug, title: "", subtitle: "", description: "", sidebarTitle: "", sidebarContent: "" });
+        setEditing(existing || { slug, title: "", subtitle: "", description: "", sidebarTitle: "", sidebarContent: "", seoTitle: "", seoDescription: "", ogImage: "" });
     };
 
     async function save(e: React.FormEvent) {
@@ -118,14 +119,30 @@ export default function AdminPages() {
                                 </div>
                             </div>
 
-                            <div className="form-grid">
-                                <div className="form-group">
-                                    <label className="form-label">SEO Title</label>
-                                    <input className="form-input" value={editing.seoTitle || ""} onChange={e => setEditing({ ...editing, seoTitle: e.target.value })} />
+                            <div style={{ padding: 20, background: "var(--white)", borderRadius: 8, border: "1px solid var(--grey-100)" }}>
+                                <h3 style={{ fontSize: "0.9rem", marginBottom: 16, textTransform: "uppercase", letterSpacing: "0.1em" }}>SEO & Social Media</h3>
+                                <div className="form-grid">
+                                    <div className="form-group">
+                                        <label className="form-label">SEO Meta Title</label>
+                                        <input className="form-input" value={editing.seoTitle || ""} onChange={e => setEditing({ ...editing, seoTitle: e.target.value })} placeholder="Custom page title for Google" />
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">SEO Meta Description</label>
+                                        <textarea className="form-textarea" rows={2} value={editing.seoDescription || ""} onChange={e => setEditing({ ...editing, seoDescription: e.target.value })} placeholder="Description for search results" />
+                                    </div>
                                 </div>
-                                <div className="form-group">
-                                    <label className="form-label">SEO Description</label>
-                                    <input className="form-input" value={editing.seoDescription || ""} onChange={e => setEditing({ ...editing, seoDescription: e.target.value })} />
+                                <div className="form-group" style={{ marginTop: 16 }}>
+                                    <label className="form-label">OpenGraph Image (FB/X Share Image)</label>
+                                    <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+                                        <div style={{ width: 120, height: 63, background: "#eee", borderRadius: 4, overflow: "hidden" }}>
+                                            {editing.ogImage ? <img src={editing.ogImage} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <div style={{ height: "100%", width: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.6rem", color: "#999" }}>1200x630</div>}
+                                        </div>
+                                        <input type="file" onChange={async (e) => {
+                                            const file = e.target.files?.[0]; if (!file) return;
+                                            const res = await fetch(`/api/upload/blob?filename=${encodeURIComponent(file.name)}`, { method: "POST", body: file });
+                                            const data = await res.json(); if (data.url) setEditing({ ...editing, ogImage: data.url });
+                                        }} />
+                                    </div>
                                 </div>
                             </div>
 

@@ -9,6 +9,7 @@ const PageContentSchema = new Schema({
     sidebarContent: { type: String },
     seoTitle: { type: String },
     seoDescription: { type: String },
+    ogImage: { type: String },
 }, { timestamps: true });
 
 export default models.PageContent || mongoose.model('PageContent', PageContentSchema);
