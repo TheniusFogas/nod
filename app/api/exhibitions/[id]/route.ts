@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/db";
 import Exhibition from "@/models/Exhibition";
 
@@ -14,25 +15,16 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     await dbConnect();
-
     try {
         const body = await req.json();
-        console.log("PUT /api/exhibitions/" + id + " received:", JSON.stringify(body, null, 2));
         const { _id, __v, ...data } = body;
-
         const exhibition = await Exhibition.findById(id);
-        if (!exhibition) {
-            console.log("Exhibition not found for ID:", id);
-            return NextResponse.json({ error: "Exhibition not found" }, { status: 404 });
-        }
-
+        if (!exhibition) return NextResponse.json({ error: "Exhibition not found" }, { status: 404 });
         Object.assign(exhibition, data);
         await exhibition.save();
-
-        console.log("Update successful for exhibition:", exhibition.title);
         return NextResponse.json(exhibition);
     } catch (err: any) {
         console.error("PUT /api/exhibitions error:", err);
@@ -42,7 +34,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
 export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     await dbConnect();
     await Exhibition.findByIdAndDelete(id);
