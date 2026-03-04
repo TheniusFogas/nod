@@ -136,8 +136,8 @@ export default async function ExhibitionDetailPage({ params }: { params: Promise
 
                             {/* Sidebar */}
                             <aside>
-                                <div style={{ position: "sticky", top: "calc(var(--nav-h) + 40px)", display: "flex", flexDirection: "column", gap: 40 }}>
-                                    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+                                <div className="exhibition-sidebar__sticky">
+                                    <div className="exhibition-sidebar__info">
                                         <div>
                                             <div style={{ fontSize: "0.65rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--grey-600)", marginBottom: 8 }}>Artists</div>
                                             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>

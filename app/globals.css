@@ -932,11 +932,45 @@ p {
   gap: 80px;
 }
 
+.exhibition-sidebar__sticky {
+  position: sticky;
+  top: calc(var(--nav-h) + 40px);
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.exhibition-sidebar__info {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
 @media (max-width: 900px) {
   .exhibition-detail-grid {
     grid-template-columns: 1fr;
     gap: 48px;
   }
+
+  .exhibition-sidebar__sticky {
+    position: relative;
+    top: 0;
+    gap: 32px;
+  }
+}
+
+@media (max-width: 600px) {
+  .exhibition-detail-grid {
+    gap: 40px;
+  }
+
+  .exhibition-sidebar__info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px 16px;
+  }
+
+  /* Make the Newsletter form span full width if we put it in the grid, but it's separate */
 }
 
 

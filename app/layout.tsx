@@ -1,9 +1,14 @@
 // Deployment trigger: 2026-03-04T21:45
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import dbConnect from "@/lib/db";
 import Settings from "@/models/Settings";
 import { SettingsProvider } from "@/components/SettingsProvider";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXTAUTH_URL || "https://nodflo.vercel.app"),
