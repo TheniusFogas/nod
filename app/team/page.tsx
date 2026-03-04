@@ -1,21 +1,20 @@
-"use client";
-import { useState, useEffect } from "react";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import dbConnect from "@/lib/db";
+import TeamMember from "@/models/TeamMember";
 
 const FALLBACK_PHOTO = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80";
 
-export default function TeamPage() {
-    const [team, setTeam] = useState<any[]>([]);
+export const dynamic = "force-dynamic";
+
+export default async function TeamPage() {
+    await dbConnect();
+    const team = await TeamMember.find({}).sort({ order: 1, name: 1 }).lean();
 
     const ensureExternalLink = (url: string) => {
         if (!url) return "";
         return url.startsWith("http") ? url : `https://${url}`;
     };
-
-    useEffect(() => {
-        fetch("/api/team").then((r) => r.json()).then(setTeam).catch(() => { });
-    }, []);
 
     return (
         <>
@@ -35,8 +34,8 @@ export default function TeamPage() {
                             </p>
                         ) : (
                             <div className="team-grid">
-                                {team.map((member) => (
-                                    <div key={member._id} className="team-card">
+                                {team.map((member: any) => (
+                                    <div key={member._id.toString()} className="team-card">
                                         <div className="team-card__img-wrap">
                                             <img src={member.photo || FALLBACK_PHOTO} alt={member.name} className="team-card__img" />
                                         </div>

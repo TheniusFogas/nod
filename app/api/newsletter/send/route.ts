@@ -12,20 +12,24 @@ export async function POST(req: NextRequest) {
     if (!subject || !body) return NextResponse.json({ error: "Subject and body required" }, { status: 400 });
 
     await dbConnect();
-    const subscribers = await NewsletterSubscriber.find({ isActive: true }).select("email");
-    const emails = subscribers.map((s: any) => s.email);
+    const subscribers = await NewsletterSubscriber.find({ isActive: true });
 
-    if (emails.length === 0) return NextResponse.json({ error: "No subscribers" }, { status: 400 });
+    if (subscribers.length === 0) return NextResponse.json({ error: "No subscribers" }, { status: 400 });
 
+    let sentCount = 0;
     try {
-        await sendEmail({
-            to: emails,
-            subject,
-            html: newsletterTemplate({ subject, body }),
-        });
-        return NextResponse.json({ success: true, sent: emails.length });
+        for (const s of subscribers) {
+            const personalizedBody = body.replace(/{nume}/g, s.name || "prietene");
+            await sendEmail({
+                to: s.email,
+                subject,
+                html: newsletterTemplate({ subject, body: personalizedBody, email: s.email }),
+            });
+            sentCount++;
+        }
+        return NextResponse.json({ success: true, sent: sentCount });
     } catch (err) {
         console.error("Email send error:", err);
-        return NextResponse.json({ error: "Email failed to send" }, { status: 500 });
+        return NextResponse.json({ error: "Email failed to send", sentCount }, { status: 500 });
     }
 }

@@ -1,39 +1,43 @@
 import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_APP_PASSWORD,
-    },
+  service: "gmail",
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_APP_PASSWORD,
+  },
 });
 
 export async function sendEmail({
-    to,
+  to,
+  subject,
+  html,
+}: {
+  to: string | string[];
+  subject: string;
+  html: string;
+}) {
+  const recipients = Array.isArray(to) ? to.join(",") : to;
+  await transporter.sendMail({
+    from: `NOD FLOW Gallery <${process.env.GMAIL_USER}>`,
+    to: recipients,
     subject,
     html,
-}: {
-    to: string | string[];
-    subject: string;
-    html: string;
-}) {
-    const recipients = Array.isArray(to) ? to.join(",") : to;
-    await transporter.sendMail({
-        from: `NOD FLOW Gallery <${process.env.GMAIL_USER}>`,
-        to: recipients,
-        subject,
-        html,
-    });
+  });
 }
 
 export function newsletterTemplate({
-    subject,
-    body,
+  subject,
+  body,
+  email,
 }: {
-    subject: string;
-    body: string;
+  subject: string;
+  body: string;
+  email?: string;
 }) {
-    return `
+  const unsubLink = email ? `${process.env.NEXTAUTH_URL}/unsubscribe?email=${encodeURIComponent(email)}` : "#";
+
+  return `
   <!DOCTYPE html>
   <html>
   <head>
@@ -47,6 +51,7 @@ export function newsletterTemplate({
       h1 { font-size:28px; margin:0 0 24px; font-weight:400; }
       .footer { background:#f5f4f0; padding:32px 48px; font-size:13px; color:#666; }
       .unsubscribe { color:#888; text-decoration:underline; }
+      .btn { display:inline-block; padding:12px 24px; background:#000; color:#fff; text-decoration:none; margin-top:20px; }
     </style>
   </head>
   <body>
@@ -59,6 +64,10 @@ export function newsletterTemplate({
       <div class="footer">
         <p>NOD FLOW Gallery &mdash; Bucharest, Romania</p>
         <p>© ${new Date().getFullYear()} NOD FLOW. All rights reserved.</p>
+        <p style="margin-top:20px;">
+            Nu mai vrei aceste emailuri? 
+            <a href="${unsubLink}" class="unsubscribe">Dezbonează-te aici</a>.
+        </p>
       </div>
     </div>
   </body>

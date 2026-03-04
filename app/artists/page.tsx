@@ -1,17 +1,16 @@
-"use client";
-import { useState, useEffect } from "react";
 import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import dbConnect from "@/lib/db";
+import Artist from "@/models/Artist";
 
 const FALLBACK = "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600&q=80";
 
-export default function ArtistsPage() {
-    const [artists, setArtists] = useState<any[]>([]);
+export const dynamic = "force-dynamic";
 
-    useEffect(() => {
-        fetch("/api/artists").then((r) => r.json()).then(setArtists).catch(() => { });
-    }, []);
+export default async function ArtistsPage() {
+    await dbConnect();
+    const artists = await Artist.find({}).sort({ membership: 1, order: 1, name: 1 }).lean();
 
     return (
         <>
@@ -28,8 +27,8 @@ export default function ArtistsPage() {
                             </p>
                         ) : (
                             <div className="artist-grid">
-                                {artists.map((a) => (
-                                    <Link href={`/artists/${a.slug}`} key={a._id} className="artist-card">
+                                {artists.map((a: any) => (
+                                    <Link href={`/artists/${a.slug}`} key={a._id.toString()} className="artist-card">
                                         <div className="artist-card__img-wrap">
                                             <img src={a.photo || FALLBACK} alt={a.name} className="artist-card__img" />
                                         </div>
