@@ -9,21 +9,17 @@ import { revalidatePath } from "next/cache";
 
 function serializeDoc(doc: any) {
     if (!doc) return doc;
-    const serialized = { ...doc };
-    if (serialized._id) serialized._id = serialized._id.toString();
-    if (serialized.createdAt) serialized.createdAt = new Date(serialized.createdAt).toISOString();
-    if (serialized.updatedAt) serialized.updatedAt = new Date(serialized.updatedAt).toISOString();
-    // Recursively serialize artists array if populated
+    const serialized = JSON.parse(JSON.stringify(doc));
+
+    // Apply fallbacks for legacy artists to avoid undefined errors in UI
     if (Array.isArray(serialized.artists)) {
-        serialized.artists = serialized.artists.map((a: any) => ({
-            ...a,
-            _id: a._id?.toString() || undefined,
-            artist: typeof a.artist === 'object' && a.artist !== null ? {
-                ...serializeDoc(a.artist),
-                profileImage: a.artist.profileImage || { url: '', public_id: '', blurDataURL: '' },
-                socials: a.artist.socials || { instagram: '', website: '' }
-            } : a.artist?.toString()
-        }));
+        serialized.artists = serialized.artists.map((a: any) => {
+            if (typeof a.artist === 'object' && a.artist !== null) {
+                a.artist.profileImage = a.artist.profileImage || { url: '', public_id: '', blurDataURL: '' };
+                a.artist.socials = a.artist.socials || { instagram: '', website: '' };
+            }
+            return a;
+        });
     }
     return serialized;
 }

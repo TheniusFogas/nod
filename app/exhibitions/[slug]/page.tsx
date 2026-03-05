@@ -68,10 +68,13 @@ export default async function ExhibitionDetailPage({ params }: { params: Promise
     const validArtistIds = rawArtistIds.filter((id: string) => mongoose.Types.ObjectId.isValid(id.toString()));
     const populatedArtists = validArtistIds.length > 0 ? await Artist.find({ _id: { $in: validArtistIds } }).lean() : [];
 
-    exhibitionDoc.artists = exhibitionDoc.artists?.map((a: any) => ({
-        ...a,
-        artist: populatedArtists.find((pa: any) => pa._id.toString() === a.artist?.toString()) || null
-    }));
+    exhibitionDoc.artists = (exhibitionDoc.artists || []).map((a: any) => {
+        if (!a || !a.artist) return a;
+        return {
+            ...a,
+            artist: populatedArtists.find((pa: any) => pa._id.toString() === a.artist.toString()) || null
+        };
+    });
 
     // SANITIZE DATA FOR CLIENT COMPONENTS
     // Never pass the raw lean() object directly if it contains Mongoose internals or non-serializable types.
@@ -149,8 +152,7 @@ export default async function ExhibitionDetailPage({ params }: { params: Promise
                                         <div style={{ fontSize: "0.65rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--grey-600)", marginBottom: 8 }}>Artists</div>
                                         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                                             {exhibition.artists && exhibition.artists.length > 0 ? (
-                                                exhibition.artists.map((a: any, i: number) => {
-                                                    if (!a) return null;
+                                                exhibition.artists.filter((a: any) => a !== null && a !== undefined).map((a: any, i: number) => {
                                                     return (
                                                         <div key={i}>
                                                             {a.artist && a.artist.slug ? (
