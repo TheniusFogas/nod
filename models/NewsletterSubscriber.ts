@@ -8,4 +8,4 @@ const NewsletterSubscriberSchema = new Schema({
     isActive: { type: Boolean, default: true },
 }, { timestamps: true });
 
-export default models.NewsletterSubscriber || mongoose.model('NewsletterSubscriber', NewsletterSubscriberSchema);
+export const NewsletterSubscriber = models.NewsletterSubscriber || mongoose.model('NewsletterSubscriber', NewsletterSubscriberSchema);

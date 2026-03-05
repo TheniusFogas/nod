@@ -23,9 +23,12 @@ async function dbConnect() {
   if (!cached.promise) {
     cached.promise = mongoose.connect(MONGODB_URI, {
       bufferCommands: false,
-      maxPoolSize: 1,
-      minPoolSize: 0,
-    }).then((m) => m);
+      maxPoolSize: 10, // Senior Archivement: Prevent connection exhaustion
+    }).then((m) => {
+      // CRITICAL: Register all models immediately after connection
+      require('./models');
+      return m;
+    });
   }
 
   try {

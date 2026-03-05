@@ -54,4 +54,4 @@ const SettingsSchema = new mongoose.Schema({
     customHeadScripts: { type: String, default: '' },
 }, { timestamps: true });
 
-export default mongoose.models.Settings || mongoose.model('Settings', SettingsSchema);
+export const Settings = mongoose.models.Settings || mongoose.model('Settings', SettingsSchema);

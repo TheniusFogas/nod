@@ -8,4 +8,4 @@ const SponsorSchema = new Schema({
     order: { type: Number, default: 0 },
 }, { timestamps: true });
 
-export default models.Sponsor || mongoose.model('Sponsor', SponsorSchema);
+export const Sponsor = models.Sponsor || mongoose.model('Sponsor', SponsorSchema);

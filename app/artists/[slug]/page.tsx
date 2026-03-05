@@ -1,39 +1,52 @@
-"use client";
-import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
 import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import Image from "next/image";
+import dbConnect from "@/lib/db";
+import { Artist } from "@/models/Artist";
+import { notFound } from "next/navigation";
+import { cache } from "react";
+import type { Metadata } from "next";
 
-export default function ArtistDetailPage() {
-    const params = useParams();
-    const [artist, setArtist] = useState<any>(null);
+// Senior Architecture: Incremental Static Regeneration (ISR)
+export const revalidate = 3600;
 
-    const ensureExternalLink = (url: string) => {
-        if (!url) return "";
-        return url.startsWith("http") ? url : `https://${url}`;
+const ensureExternalLink = (url: string) => {
+    if (!url) return "";
+    return url.startsWith("http") ? url : `https://${url}`;
+};
+
+/**
+ * Senior Architecture: Memoized Data Fetching
+ */
+const getArtist = cache(async (slug: string) => {
+    await dbConnect();
+    const rawRes = await Artist.findOne({ slug }).lean();
+    if (!rawRes) return null;
+    return JSON.parse(JSON.stringify(rawRes));
+});
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+    const { slug } = await params;
+    const artist = await getArtist(slug);
+    if (!artist) return { title: "Artist Not Found | NOD FLOW" };
+
+    const title = `${artist.name} | NOD FLOW`;
+    const description = artist.bio || `View works and biography of ${artist.name} at NOD FLOW Gallery.`;
+    const ogImage = artist.profileImage?.url || artist.photo || "https://nodflo.com/og-default.jpg";
+
+    return {
+        title,
+        description,
+        openGraph: { title, description, images: [ogImage] }
     };
+}
 
-    useEffect(() => {
-        fetch("/api/artists")
-            .then((r) => r.json())
-            .then((data: any[]) => {
-                setArtist(data.find((a) => a.slug === params.slug) || null);
-            })
-            .catch(() => { });
-    }, [params.slug]);
+export default async function ArtistDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+    const { slug } = await params;
+    const artist = await getArtist(slug);
 
-    if (!artist) {
-        return (
-            <>
-                <Nav />
-                <div style={{ paddingTop: "var(--nav-h)", minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <p className="text-muted">Loading...</p>
-                </div>
-            </>
-        );
-    }
+    if (!artist) return notFound();
 
     return (
         <>
@@ -105,8 +118,14 @@ export default function ArtistDetailPage() {
                                         <h3 style={{ fontFamily: "var(--font-serif)", fontWeight: 400, marginBottom: 32 }}>Artworks</h3>
                                         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 24 }}>
                                             {artist.gallery.map((img: string, i: number) => (
-                                                <div key={i} style={{ borderRadius: 2, overflow: "hidden", background: "var(--cream)" }}>
-                                                    <img src={img} alt={`${artist.name} Work ${i + 1}`} style={{ width: "100%", height: "auto", display: "block" }} />
+                                                <div key={i} style={{ borderRadius: 2, overflow: "hidden", background: "var(--cream)", position: 'relative', minHeight: 300 }}>
+                                                    <Image
+                                                        src={img}
+                                                        alt={`${artist.name} Work ${i + 1}`}
+                                                        fill
+                                                        sizes="(max-width: 768px) 100vw, 33vw"
+                                                        style={{ objectFit: 'cover' }}
+                                                    />
                                                 </div>
                                             ))}
                                         </div>

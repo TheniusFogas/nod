@@ -3,14 +3,17 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import NewsletterForm from "@/components/NewsletterForm";
 import dbConnect from "@/lib/db";
-import Exhibition from "@/models/Exhibition";
-import Artist from "@/models/Artist";
+import { Exhibition } from "@/models/Exhibition";
+import { Artist } from "@/models/Artist";
 import { notFound } from "next/navigation";
 import { ExhibitionDetailClient } from "@/components/ExhibitionDetailClient";
 import { CalendarButton } from "@/components/CalendarButton";
 import type { Metadata } from "next";
+import { cache } from "react";
+import Image from "next/image";
 
-export const dynamic = "force-dynamic";
+// Senior Architecture: Incremental Static Regeneration (ISR)
+export const revalidate = 3600; // Cache for 1 hour, background reval
 
 function formatDate(d: any) {
     if (!d) return "";
@@ -23,11 +26,30 @@ function formatDate(d: any) {
     }
 }
 
+/**
+ * Senior Architecture: Memoized Data Fetching
+ * Uses React cache() to prevent duplicate DB queries between generateMetadata and the Page component.
+ * Uses .lean() for raw POJO performance and .select() for memory-efficient projections.
+ */
+const getExhibition = cache(async (slug: string) => {
+    await dbConnect();
+    const rawRes = await Exhibition.findOne({ slug })
+        .populate({
+            path: 'artists.artist',
+            select: 'name slug profileImage' // Only fetch what's needed
+        })
+        .lean();
+
+    if (!rawRes) return null;
+
+    // Deep Serialization for Serverless/Edge safety
+    return JSON.parse(JSON.stringify(rawRes));
+});
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
     try {
-        await dbConnect();
         const { slug } = await params;
-        const ex = await Exhibition.findOne({ slug }).lean() as any;
+        const ex = await getExhibition(slug);
         if (!ex) return { title: "Exhibition Not Found | NOD FLOW" };
 
         const title = ex.seoTitle || `${ex.title} | NOD FLOW`;
@@ -47,14 +69,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function ExhibitionDetailPage({ params }: { params: Promise<{ slug: string }> }) {
     try {
-        await dbConnect();
         const { slug } = await params;
+        const exhibition = await getExhibition(slug);
 
-        const rawExhibition = await Exhibition.findOne({ slug }).populate('artists.artist').lean() as any;
-        if (!rawExhibition) return notFound();
-
-        // DEEPLY SERIALIZE TO CLEAN ANY HIDDEN MONGOOSE METADATA
-        const exhibition = JSON.parse(JSON.stringify(rawExhibition));
+        if (!exhibition) return notFound();
 
         const artistsArray = Array.isArray(exhibition.artists) ? exhibition.artists : [];
         const uiArtists = artistsArray
@@ -76,10 +94,13 @@ export default async function ExhibitionDetailPage({ params }: { params: Promise
                 <div className="exhibition-hero">
                     {exhibition.coverImage && (
                         <div style={{ width: "100%", height: "100%", position: "relative" }}>
-                            <img
+                            <Image
                                 src={exhibition.coverImage}
                                 alt={exhibition.title}
-                                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                fill
+                                priority // Ace LCP - Important for SEO/Speed
+                                sizes="100vw"
+                                style={{ objectFit: "cover" }}
                             />
                         </div>
                     )}

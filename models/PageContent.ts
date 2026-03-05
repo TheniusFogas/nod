@@ -12,4 +12,4 @@ const PageContentSchema = new Schema({
     ogImage: { type: String },
 }, { timestamps: true });
 
-export default models.PageContent || mongoose.model('PageContent', PageContentSchema);
+export const PageContent = models.PageContent || mongoose.model('PageContent', PageContentSchema);

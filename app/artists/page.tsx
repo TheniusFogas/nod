@@ -3,19 +3,31 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import Image from "next/image";
 import dbConnect from "@/lib/db";
-import Artist from "@/models/Artist";
-import PageContent from "@/models/PageContent";
+import { Artist } from "@/models/Artist";
+import { PageContent } from "@/models/PageContent";
+import type { Metadata } from "next";
+import { cache } from "react";
 
 const FALLBACK = "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600&q=80";
 
-import type { Metadata } from "next";
-
-// Vercel Serverless Optimization: Cache output on Edge.
+// Senior Architecture: Incremental Static Regeneration (ISR)
 export const revalidate = 3600;
 
-export async function generateMetadata(): Promise<Metadata> {
+/**
+ * Senior Architecture: Memoized Data Fetching
+ */
+const getArtistsData = cache(async () => {
     await dbConnect();
-    const cms = await PageContent.findOne({ slug: "artists" }).lean() as any;
+    const [rawArtists, rawCms] = await Promise.all([
+        Artist.find({}).select('name slug bio profileImage photo membership order').lean(),
+        PageContent.findOne({ slug: "artists" }).select('title description seoTitle seoDescription ogImage sidebarTitle sidebarContent').lean()
+    ]);
+
+    return JSON.parse(JSON.stringify({ artists: rawArtists, cms: rawCms }));
+});
+
+export async function generateMetadata(): Promise<Metadata> {
+    const { cms } = await getArtistsData();
     const title = cms?.seoTitle || "Artists | NOD FLOW";
     const description = cms?.seoDescription || cms?.description?.slice(0, 160) || "Artists represented and exhibited by NOD FLOW.";
     const ogImage = cms?.ogImage || "https://nodflo.com/og-default.jpg";
@@ -28,10 +40,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ArtistsPage() {
-    await dbConnect();
-    // Fetch all artists and sort them purely in Javascript for absolute reliability
-    const rawData = await Artist.find({}).lean();
-    const artistsRaw = JSON.parse(JSON.stringify(rawData));
+    const { artists: artistsRaw, cms } = await getArtistsData();
 
     const getRank = (membership: string) => {
         const m = membership?.toLowerCase() || "";
@@ -49,8 +58,6 @@ export default async function ArtistsPage() {
         if (a.order !== b.order) return (a.order || 0) - (b.order || 0);
         return (a.name || "").localeCompare(b.name || "");
     });
-
-    const cms = await PageContent.findOne({ slug: "artists" }).lean() as any;
 
     return (
         <>

@@ -8,4 +8,4 @@ const ContactInquirySchema = new Schema({
     read: { type: Boolean, default: false },
 }, { timestamps: true });
 
-export default models.ContactInquiry || mongoose.model('ContactInquiry', ContactInquirySchema);
+export const ContactInquiry = models.ContactInquiry || mongoose.model('ContactInquiry', ContactInquirySchema);

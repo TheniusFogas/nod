@@ -32,5 +32,6 @@ const ArtistSchema = new Schema({
 ArtistSchema.index({ slug: 1 }, { unique: true });
 ArtistSchema.index({ tags: 1 }); // Required index for filtering arrays instantly
 ArtistSchema.index({ membership: 1, order: 1 }); // Critical Compound Index for hierarchical rendering
+ArtistSchema.index({ featured: 1, order: 1 }); // Performance for Homepage featured artists
 
-export default models.Artist || mongoose.model('Artist', ArtistSchema);
+export const Artist = models.Artist || mongoose.model('Artist', ArtistSchema);

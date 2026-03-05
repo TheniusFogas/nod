@@ -2,13 +2,39 @@ import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import dbConnect from "@/lib/db";
-import Exhibition from "@/models/Exhibition";
-import News from "@/models/News";
+import { Exhibition } from "@/models/Exhibition";
+import { News } from "@/models/News";
 import { OpenCall } from "@/models/OpenCall";
-import Settings from "@/models/Settings";
+import { Settings } from "@/models/Settings";
 import { HeroLoader } from "@/components/HeroLoader";
 import { NewsletterStrip } from "@/components/NewsletterStrip";
 import Image from "next/image";
+import { PageContent } from "@/models/PageContent";
+import type { Metadata } from "next";
+import { cache } from "react";
+
+const KAKI = "var(--cream)";
+
+// Senior Architecture: Incremental Static Regeneration (ISR)
+export const revalidate = 3600;
+
+/**
+ * Senior Architecture: Memoized Data Fetching
+ * Consolidates homepage data into a single request lifecycle with projections.
+ */
+const getHomeData = cache(async () => {
+  await dbConnect();
+
+  const [settings, exhibitions, news, openCalls, cms] = await Promise.all([
+    Settings.findOne({}).select('heroSlides galleryName logoUrl homepageExtraTitle homepageExtraContent homepageExtraImage homepageExtra2Title homepageExtra2Content homepageExtra2Image').lean(),
+    Exhibition.find({}).select('title slug artist startDate endDate type coverImage exhibitionType').sort({ startDate: -1 }).lean(),
+    News.find({}).select('title link image source date').sort({ date: -1 }).limit(3).lean(),
+    OpenCall.find({ showOnHomepage: true }).select('title slug coverImage deadline').lean(),
+    PageContent.findOne({ slug: "home" }).select('seoTitle seoDescription ogImage').lean()
+  ]);
+
+  return JSON.parse(JSON.stringify({ settings, exhibitions, news, openCalls, cms }));
+});
 
 function formatDate(d: any) {
   if (!d) return "";
@@ -17,18 +43,8 @@ function formatDate(d: any) {
   });
 }
 
-import PageContent from "@/models/PageContent";
-import type { Metadata } from "next";
-
-const KAKI = "var(--cream)";
-
-// ISR caching: Regenerate page once an hour maximum to serve from Vercel Edge Cache.
-// dynamic = "force-dynamic" is catastrophic for high traffic serverless deployments.
-export const revalidate = 3600;
-
 export async function generateMetadata(): Promise<Metadata> {
-  await dbConnect();
-  const cms = await PageContent.findOne({ slug: "home" }).lean() as any;
+  const { cms } = await getHomeData();
   const title = cms?.seoTitle || "NOD FLOW | Contemporary Art Gallery";
   const description = cms?.seoDescription || "NOD FLOW is a contemporary art gallery and creative hub.";
   const ogImage = cms?.ogImage || "https://nodflo.com/og-default.jpg";
@@ -41,24 +57,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  await dbConnect();
+  const { settings, exhibitions, news, openCalls } = await getHomeData();
 
-  // Fetch all needed data in parallel server-side
-  const [rawSettings, rawAllExhibitions, rawNews, rawOpenCalls] = await Promise.all([
-    Settings.findOne({}).lean() as any,
-    Exhibition.find({}).sort({ startDate: -1 }).lean(),
-    News.find({}).sort({ date: -1 }).limit(3).lean(),
-    OpenCall.find({ showOnHomepage: true }).lean()
-  ]);
-
-  const settings = JSON.parse(JSON.stringify(rawSettings));
-  const allExhibitions = JSON.parse(JSON.stringify(rawAllExhibitions));
-  const news = JSON.parse(JSON.stringify(rawNews));
-  const openCalls = JSON.parse(JSON.stringify(rawOpenCalls));
-
-  const current = allExhibitions.filter((e: any) => e.type === "current").slice(0, 3);
-  const upcoming = allExhibitions.filter((e: any) => e.type === "upcoming").slice(0, 3);
-  const past = allExhibitions.filter((e: any) => e.type === "past").slice(0, 3);
+  const current = exhibitions.filter((e: any) => e.type === "current").slice(0, 3);
+  const upcoming = exhibitions.filter((e: any) => e.type === "upcoming").slice(0, 3);
+  const past = exhibitions.filter((e: any) => e.type === "past").slice(0, 3);
 
   const slides = settings?.heroSlides || [];
 
@@ -148,8 +151,16 @@ export default async function HomePage() {
             <div className="exhibition-grid">
               {upcoming.map((ex: any) => (
                 <Link href={`/exhibitions/${ex.slug}`} key={ex._id.toString()} className="exhibition-card">
-                  <div className="exhibition-card__img-wrap" style={{ background: KAKI }}>
-                    {ex.coverImage && <img src={ex.coverImage} alt={ex.title} className="exhibition-card__img" />}
+                  <div className="exhibition-card__img-wrap" style={{ background: KAKI, position: 'relative' }}>
+                    {ex.coverImage && (
+                      <Image
+                        src={ex.coverImage}
+                        alt={ex.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        style={{ objectFit: 'cover' }}
+                      />
+                    )}
                   </div>
                   <div className="exhibition-card__tag" style={{ color: "#004085" }}>
                     Upcoming
@@ -180,8 +191,14 @@ export default async function HomePage() {
               {news.map((item: any) => (
                 <a key={item._id.toString()} href={item.link || "#"} target="_blank" rel="noopener noreferrer" className="news-card">
                   {item.image && (
-                    <div className="news-card__img-wrap">
-                      <img src={item.image} alt={item.title} className="news-card__img" />
+                    <div className="news-card__img-wrap" style={{ position: 'relative' }}>
+                      <Image
+                        src={item.image}
+                        alt={item.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        style={{ objectFit: 'cover' }}
+                      />
                     </div>
                   )}
                   <div className="news-card__source">{item.source}</div>
@@ -207,8 +224,16 @@ export default async function HomePage() {
             <div className="exhibition-grid">
               {past.map((ex: any) => (
                 <Link href={`/exhibitions/${ex.slug}`} key={ex._id.toString()} className="exhibition-card">
-                  <div className="exhibition-card__img-wrap" style={{ background: KAKI }}>
-                    {ex.coverImage && <img src={ex.coverImage} alt={ex.title} className="exhibition-card__img" />}
+                  <div className="exhibition-card__img-wrap" style={{ background: KAKI, position: 'relative' }}>
+                    {ex.coverImage && (
+                      <Image
+                        src={ex.coverImage}
+                        alt={ex.title}
+                        fill
+                        sizes="(max-width: 768px) 50vw, 25vw"
+                        style={{ objectFit: 'cover' }}
+                      />
+                    )}
                   </div>
                   <div className="exhibition-card__tag" style={{ color: "var(--grey-500)" }}>Archive</div>
                   <div className="exhibition-card__title">{ex.title}</div>
@@ -229,8 +254,14 @@ export default async function HomePage() {
           <div className="container">
             <div style={{ display: "grid", gridTemplateColumns: settings.homepageExtraImage ? "1fr 1fr" : "1fr", gap: 64, alignItems: "center" }}>
               {settings.homepageExtraImage && (
-                <div className="fade-up">
-                  <img src={settings.homepageExtraImage} alt={settings.homepageExtraTitle} style={{ width: "100%", height: "auto" }} />
+                <div className="fade-up" style={{ position: 'relative', minHeight: 400 }}>
+                  <Image
+                    src={settings.homepageExtraImage}
+                    alt={settings.homepageExtraTitle}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    style={{ objectFit: "cover" }}
+                  />
                 </div>
               )}
               <div className="fade-up">
@@ -251,8 +282,14 @@ export default async function HomePage() {
                 <div className="rich-text" dangerouslySetInnerHTML={{ __html: settings.homepageExtra2Content }} style={{ lineHeight: 1.8, color: "var(--grey-600)" }} />
               </div>
               {settings.homepageExtra2Image && (
-                <div className="fade-up" style={{ order: 1 }}>
-                  <img src={settings.homepageExtra2Image} alt={settings.homepageExtra2Title} style={{ width: "100%", height: "auto" }} />
+                <div className="fade-up" style={{ order: 1, position: 'relative', minHeight: 400 }}>
+                  <Image
+                    src={settings.homepageExtra2Image}
+                    alt={settings.homepageExtra2Title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    style={{ objectFit: "cover" }}
+                  />
                 </div>
               )}
             </div>

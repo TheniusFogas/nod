@@ -9,4 +9,4 @@ const ArtistContactSchema = new Schema({
     lastAppliedDate: { type: Date, default: Date.now },
 }, { timestamps: true });
 
-export default mongoose.models.ArtistContact || mongoose.model('ArtistContact', ArtistContactSchema);
+export const ArtistContact = mongoose.models.ArtistContact || mongoose.model('ArtistContact', ArtistContactSchema);
