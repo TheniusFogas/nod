@@ -5,6 +5,7 @@ import dbConnect from "@/lib/db";
 import { OpenCall } from "@/models/OpenCall";
 import PageContent from "@/models/PageContent";
 import type { Metadata } from "next";
+import { formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -22,18 +23,14 @@ export async function generateMetadata(): Promise<Metadata> {
     };
 }
 
-function formatDate(d: any) {
-    if (!d) return "";
-    return new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
-}
 
 export default async function OpenCallsPage() {
     await dbConnect();
-    const calls = await OpenCall.find({}).sort({ deadline: -1 }).lean();
-    const cms = await PageContent.findOne({ slug: "open-calls" }).lean() as any;
+    const calls = await OpenCall.find({}).select('title slug deadline isActive -__v -updatedAt').sort({ deadline: -1 }).lean();
+    const cms = await PageContent.findOne({ slug: "open-calls" }).select('title description seoTitle seoDescription ogImage -__v -updatedAt').lean() as any;
 
-    const active = calls.filter((c: any) => c.isActive);
-    const closed = calls.filter((c: any) => !c.isActive);
+    const active = (calls || []).filter((c: any) => c.isActive);
+    const closed = (calls || []).filter((c: any) => !c.isActive);
 
     return (
         <>

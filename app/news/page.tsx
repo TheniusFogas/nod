@@ -5,6 +5,8 @@ import dbConnect from "@/lib/db";
 import News from "@/models/News";
 import PageContent from "@/models/PageContent";
 import type { Metadata } from "next";
+import { formatDate } from "@/lib/utils";
+import Image from "next/image";
 
 export const revalidate = 3600;
 
@@ -22,15 +24,11 @@ export async function generateMetadata(): Promise<Metadata> {
     };
 }
 
-function formatDate(d: any) {
-    if (!d) return "";
-    return new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
-}
 
 export default async function NewsPage() {
     await dbConnect();
-    const news = await News.find({}).sort({ date: -1 }).lean();
-    const cms = await PageContent.findOne({ slug: "news" }).lean() as any;
+    const news = await News.find({}).select('title link image source date excerpt content -__v -updatedAt').sort({ date: -1 }).lean();
+    const cms = await PageContent.findOne({ slug: "news" }).select('title description seoTitle seoDescription ogImage -__v -updatedAt').lean() as any;
 
     return (
         <>
@@ -60,9 +58,20 @@ export default async function NewsPage() {
                                         className="news-card"
                                         style={{ textDecoration: "none" }}
                                     >
-                                        {item.image && (
-                                            <div className="news-card__img-wrap">
-                                                <img src={item.image} alt={item.title} className="news-card__img" />
+                                        {item.image ? (
+                                            <div className="news-card__img-wrap" style={{ position: 'relative', height: 200 }}>
+                                                <Image
+                                                    src={item.image}
+                                                    alt={item.title || "News Image"}
+                                                    fill
+                                                    sizes="(max-width: 768px) 100vw, 33vw"
+                                                    style={{ objectFit: 'cover' }}
+                                                    className="news-card__img"
+                                                />
+                                            </div>
+                                        ) : (
+                                            <div className="news-card__img-wrap" style={{ height: 200, background: 'var(--grey-100)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', color: 'var(--grey-400)' }}>
+                                                No Image
                                             </div>
                                         )}
                                         <div className="news-card__source">{item.source}</div>

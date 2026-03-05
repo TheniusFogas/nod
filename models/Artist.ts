@@ -27,9 +27,8 @@ const ArtistSchema = new Schema({
     order: { type: Number, default: 0 }, // For Platinum sorting
     visibilityEnd: { type: Date }, // Until when it shows on site
     featured: { type: Boolean, default: false },
-}, { timestamps: true });
+}, { timestamps: true, autoIndex: false });
 
-ArtistSchema.index({ slug: 1 }, { unique: true });
 ArtistSchema.index({ tags: 1 }); // Required index for filtering arrays instantly
 ArtistSchema.index({ membership: 1, order: 1 }); // Critical Compound Index for hierarchical rendering
 ArtistSchema.index({ featured: 1, order: 1 }); // Performance for Homepage featured artists

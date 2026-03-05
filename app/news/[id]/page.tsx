@@ -3,11 +3,8 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import { formatDate } from "@/lib/utils";
 
-function formatDate(d: string) {
-    if (!d) return "";
-    return new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
-}
 
 export default function NewsDetailPage() {
     const params = useParams();

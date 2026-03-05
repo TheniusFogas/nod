@@ -25,9 +25,9 @@ const ExhibitionSchema = new Schema({
     seoDescription: { type: String },
     ogImage: { type: String },
     featured: { type: Boolean, default: false },
-}, { timestamps: true });
+}, { timestamps: true, autoIndex: false });
 
-ExhibitionSchema.index({ slug: 1 }, { unique: true });
+ExhibitionSchema.index({ slug: 1, type: 1, startDate: -1 }); // High-traffic composite lookup
 ExhibitionSchema.index({ type: 1, startDate: -1 }); // Critical Compound Index for 'Currently on View', 'Past' queries
 ExhibitionSchema.index({ featured: 1, startDate: -1 }); // Performance for Homepage featured list
 

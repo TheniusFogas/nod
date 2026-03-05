@@ -124,10 +124,7 @@ export default function AdminSettingsPage() {
 
         try {
             console.log(`Uploading file to ${target} via Vercel Blob...`);
-            const res = await fetch(`/api/upload/blob?filename=${encodeURIComponent(file.name)}`, {
-                method: "POST",
-                body: file,
-            });
+            const __fd = new FormData(); __fd.append("file", file,); __fd.append("folder", "nodflo/content"); const res = await fetch("/api/upload", { method: "POST", body: __fd });
 
             if (!res.ok) {
                 const errData = await res.json();
@@ -453,7 +450,7 @@ export default function AdminSettingsPage() {
                                         const file = e.target.files?.[0]; if (!file) return;
                                         setUploadingTarget("logo");
                                         try {
-                                            const res = await fetch(`/api/upload/blob?filename=${encodeURIComponent(file.name)}`, { method: "POST", body: file });
+                                            const __fd = new FormData(); __fd.append("file", file); __fd.append("folder", "nodflo/content"); const res = await fetch("/api/upload", { method: "POST", body: __fd });
                                             const data = await res.json();
                                             if (data.url) setSettings(prev => prev ? ({ ...prev, logoUrl: data.url } as any) : null);
                                         } catch { alert("Upload failed"); } finally { setUploadingTarget(null); }

@@ -235,7 +235,7 @@ export default function AdminArtists() {
                                                 try {
                                                     const urls = [];
                                                     for (const file of files) {
-                                                        const res = await fetch(`/api/upload/blob?filename=${encodeURIComponent(file.name)}`, { method: "POST", body: file });
+                                                        const __fd = new FormData(); __fd.append("file", file); __fd.append("folder", "nodflo/content"); const res = await fetch("/api/upload", { method: "POST", body: __fd });
                                                         const data = await res.json();
                                                         if (data.url) urls.push(data.url);
                                                     }

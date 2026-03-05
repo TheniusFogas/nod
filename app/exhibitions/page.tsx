@@ -6,6 +6,8 @@ import Exhibition from "@/models/Exhibition";
 import PageContent from "@/models/PageContent";
 
 import type { Metadata } from "next";
+import { formatDate } from "@/lib/utils";
+import Image from "next/image";
 
 // Enable Incremental Static Regeneration (1 hr lifecycle mapping)
 export const revalidate = 3600;
@@ -24,10 +26,6 @@ export async function generateMetadata(): Promise<Metadata> {
     };
 }
 
-function formatDate(d: string) {
-    if (!d) return "";
-    return new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
-}
 
 const FALLBACK = "https://images.unsplash.com/photo-1557683311-eac922347aa1?w=900&q=80";
 const TYPES = ["all", "current", "upcoming", "past"];
@@ -39,9 +37,9 @@ export default async function ExhibitionsPage({ searchParams }: { searchParams: 
 
     const exhibitions = await Exhibition.find(
         filter === "all" ? {} : { type: filter }
-    ).sort({ startDate: -1 }).lean();
+    ).select('title slug artist startDate endDate type coverImage -__v -updatedAt').sort({ startDate: -1 }).lean();
 
-    const cms = await PageContent.findOne({ slug: "exhibitions" }).lean() as any;
+    const cms = await PageContent.findOne({ slug: "exhibitions" }).select('title description seoTitle seoDescription ogImage -__v -updatedAt').lean() as any;
 
     return (
         <>
@@ -85,9 +83,16 @@ export default async function ExhibitionsPage({ searchParams }: { searchParams: 
                         ) : (
                             <div className="exhibition-grid">
                                 {exhibitions.map((ex: any) => (
-                                    <Link href={`/exhibitions/${ex.slug}`} key={ex._id.toString()} className="exhibition-card">
-                                        <div className="exhibition-card__img-wrap">
-                                            <img src={ex.coverImage || FALLBACK} alt={ex.title} className="exhibition-card__img" />
+                                    <Link href={`/exhibitions/${ex.slug}`} key={ex._id?.toString() || ex.slug} className="exhibition-card">
+                                        <div className="exhibition-card__img-wrap" style={{ position: 'relative', height: 240 }}>
+                                            <Image
+                                                src={ex.coverImage || FALLBACK}
+                                                alt={ex.title}
+                                                fill
+                                                sizes="(max-width: 768px) 100vw, 50vw"
+                                                style={{ objectFit: 'cover' }}
+                                                className="exhibition-card__img"
+                                            />
                                         </div>
                                         <div className="exhibition-card__tag">
                                             {ex.type === "current" ? "On View" : ex.type === "upcoming" ? "Upcoming" : "Past"}

@@ -160,10 +160,7 @@ export default function AdminNews() {
                                         fd.append("file", file);
                                         fd.append("folder", "news");
                                         try {
-                                            const res = await fetch(`/api/upload/blob?filename=${encodeURIComponent(file.name)}`, {
-                                                method: "POST",
-                                                body: file
-                                            });
+                                            const __fd = new FormData(); __fd.append("file", file); __fd.append("folder", "nodflo/content"); const res = await fetch("/api/upload", { method: "POST", body: __fd });
                                             if (!res.ok) throw new Error("Upload failed");
                                             const data = await res.json();
                                             if (data.url) {
@@ -219,7 +216,7 @@ export default function AdminNews() {
                                                 const file = e.target.files?.[0]; if (!file) return;
                                                 setUploadingTarget("avatar");
                                                 try {
-                                                    const res = await fetch(`/api/upload/blob?filename=${encodeURIComponent(file.name)}`, { method: "POST", body: file });
+                                                    const __fd = new FormData(); __fd.append("file", file); __fd.append("folder", "nodflo/content"); const res = await fetch("/api/upload", { method: "POST", body: __fd });
                                                     const data = await res.json();
                                                     if (data.url) setForm((prev: any) => ({ ...prev, author: { ...prev.author, avatar: data.url } }));
                                                 } catch { alert("Upload failed"); } finally { setUploadingTarget(null); }
@@ -252,7 +249,7 @@ export default function AdminNews() {
                                         try {
                                             const urls: string[] = [];
                                             for (const file of files) {
-                                                const res = await fetch(`/api/upload/blob?filename=${encodeURIComponent(file.name)}`, { method: "POST", body: file });
+                                                const __fd = new FormData(); __fd.append("file", file); __fd.append("folder", "nodflo/content"); const res = await fetch("/api/upload", { method: "POST", body: __fd });
                                                 const data = await res.json();
                                                 if (data.url) urls.push(data.url);
                                             }

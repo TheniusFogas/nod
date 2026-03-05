@@ -122,7 +122,7 @@ export default function AdminSponsors() {
                                             if (!file) return;
                                             setSaving(true);
                                             try {
-                                                const res = await fetch(`/api/upload/blob?filename=${encodeURIComponent(file.name)}`, { method: "POST", body: file });
+                                                const __fd = new FormData(); __fd.append("file", file); __fd.append("folder", "nodflo/content"); const res = await fetch("/api/upload", { method: "POST", body: __fd });
                                                 const data = await res.json();
                                                 if (data.url) setForm({ ...form, logo: data.url });
                                             } catch (err) { alert("Upload failed"); }

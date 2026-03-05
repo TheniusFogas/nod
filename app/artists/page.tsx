@@ -19,11 +19,11 @@ export const revalidate = 3600;
 const getArtistsData = cache(async () => {
     await dbConnect();
     const [rawArtists, rawCms] = await Promise.all([
-        Artist.find({}).select('name slug bio profileImage photo membership order').lean(),
-        PageContent.findOne({ slug: "artists" }).select('title description seoTitle seoDescription ogImage sidebarTitle sidebarContent').lean()
+        Artist.find({}).select('name slug bio profileImage photo membership order -__v -updatedAt').lean(),
+        PageContent.findOne({ slug: "artists" }).select('title description seoTitle seoDescription ogImage sidebarTitle sidebarContent -__v -updatedAt').lean()
     ]);
 
-    return JSON.parse(JSON.stringify({ artists: rawArtists, cms: rawCms }));
+    return { artists: rawArtists, cms: rawCms };
 });
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -51,12 +51,12 @@ export default async function ArtistsPage() {
         return 5;
     };
 
-    const artists = artistsRaw.sort((a: any, b: any) => {
-        const rankA = getRank(a.membership);
-        const rankB = getRank(b.membership);
+    const artists = (artistsRaw || []).sort((a: any, b: any) => {
+        const rankA = getRank(a?.membership);
+        const rankB = getRank(b?.membership);
         if (rankA !== rankB) return rankA - rankB;
-        if (a.order !== b.order) return (a.order || 0) - (b.order || 0);
-        return (a.name || "").localeCompare(b.name || "");
+        if ((a?.order || 0) !== (b?.order || 0)) return (a?.order || 0) - (b?.order || 0);
+        return (a?.name || "").localeCompare(b?.name || "");
     });
 
     return (
@@ -81,14 +81,14 @@ export default async function ArtistsPage() {
                                 ) : (
                                     <div className={`artist-grid ${(cms?.sidebarTitle || cms?.sidebarContent) ? "artist-grid--with-sidebar" : ""}`}>
                                         {artists.map((a: any) => (
-                                            <Link href={`/artists/${a.slug}`} key={a._id.toString()} className="artist-card">
+                                            <Link href={`/artists/${a.slug}`} key={a._id?.toString() || a.slug || a.name} className="artist-card">
                                                 <div style={{ position: "relative", height: "100%", minHeight: 400 }}>
                                                     <Image
                                                         src={a.profileImage?.url || a.photo || FALLBACK}
                                                         alt={a.name}
                                                         className="artist-card__img"
                                                         fill
-                                                        sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                                         placeholder={a.profileImage?.blurDataURL ? "blur" : "empty"}
                                                         blurDataURL={a.profileImage?.blurDataURL}
                                                         style={{ objectFit: "cover", objectPosition: "center top" }}

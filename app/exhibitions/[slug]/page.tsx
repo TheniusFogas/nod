@@ -11,20 +11,10 @@ import { CalendarButton } from "@/components/CalendarButton";
 import type { Metadata } from "next";
 import { cache } from "react";
 import Image from "next/image";
+import { formatDate } from "@/lib/utils";
 
 // Senior Architecture: Incremental Static Regeneration (ISR)
 export const revalidate = 3600; // Cache for 1 hour, background reval
-
-function formatDate(d: any) {
-    if (!d) return "";
-    try {
-        const date = d instanceof Date ? d : new Date(d);
-        if (isNaN(date.getTime())) return "";
-        return date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
-    } catch (e) {
-        return "";
-    }
-}
 
 /**
  * Senior Architecture: Memoized Data Fetching
@@ -38,6 +28,7 @@ const getExhibition = cache(async (slug: string) => {
             path: 'artists.artist',
             select: 'name slug profileImage' // Only fetch what's needed
         })
+        .select('-__v -updatedAt')
         .lean();
 
     if (!rawRes) return null;
@@ -88,16 +79,14 @@ export default async function ExhibitionDetailPage({ params }: { params: Promise
     if (!exhibition) return notFound();
 
     try {
-        // Audit log for the user's request
-        console.log(`[EXHIBITION_AUDIT] Data for "${slug}":`, JSON.stringify(exhibition).slice(0, 500) + "...");
-
         const artistsArray = Array.isArray(exhibition.artists) ? exhibition.artists : [];
         const uiArtists = artistsArray
             .filter((item: any) => item && (item.artist || item.manualName))
             .map((a: any) => ({
                 name: a.artist?.name || a.manualName || "Unnamed Artist",
                 slug: a.artist?.slug || "",
-                manualName: a.manualName
+                manualName: a.manualName,
+                artistId: a.artist?._id || null
             }));
 
         const locName = exhibition.location?.name || (typeof exhibition.location === 'string' ? exhibition.location : "NOD FLOW Gallery");
@@ -115,7 +104,7 @@ export default async function ExhibitionDetailPage({ params }: { params: Promise
                                 alt={exhibition.title}
                                 fill
                                 priority
-                                sizes="100vw"
+                                sizes="(max-width: 768px) 100vw, 1200px"
                                 style={{ objectFit: "cover" }}
                             />
                         </div>
@@ -171,8 +160,8 @@ export default async function ExhibitionDetailPage({ params }: { params: Promise
                                             <div style={{ fontSize: "0.65rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--grey-600)", marginBottom: 8 }}>Artists</div>
                                             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                                                 {uiArtists.length > 0 ? (
-                                                    uiArtists.map((uiArtist: any, i: number) => (
-                                                        <div key={uiArtist.slug || `artist-${i}`}>
+                                                    uiArtists.map((uiArtist: any) => (
+                                                        <div key={uiArtist.artistId || uiArtist.slug || uiArtist.name}>
                                                             {uiArtist.slug ? (
                                                                 <Link href={`/artists/${uiArtist.slug}`} className="artist-detail-link">
                                                                     {uiArtist.name}

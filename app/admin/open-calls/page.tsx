@@ -244,7 +244,7 @@ export default function AdminOpenCalls() {
                                             if (!file) return;
                                             setSaving(true);
                                             try {
-                                                const res = await fetch(`/api/upload/blob?filename=${encodeURIComponent(file.name)}`, { method: "POST", body: file });
+                                                const __fd = new FormData(); __fd.append("file", file); __fd.append("folder", "nodflo/content"); const res = await fetch("/api/upload", { method: "POST", body: __fd });
                                                 const data = await res.json();
                                                 if (data.url) setForm({ ...form, coverImage: data.url });
                                             } catch (err) { alert("Upload failed"); }
@@ -284,7 +284,7 @@ export default function AdminOpenCalls() {
                                         </div>
                                         <input type="file" onChange={async (e) => {
                                             const file = e.target.files?.[0]; if (!file) return;
-                                            const res = await fetch(`/api/upload/blob?filename=${encodeURIComponent(file.name)}`, { method: "POST", body: file });
+                                            const __fd = new FormData(); __fd.append("file", file); __fd.append("folder", "nodflo/content"); const res = await fetch("/api/upload", { method: "POST", body: __fd });
                                             const data = await res.json(); if (data.url) setForm({ ...form, ogImage: data.url });
                                         }} />
                                     </div>

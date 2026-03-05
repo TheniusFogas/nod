@@ -12,6 +12,7 @@ import Image from "next/image";
 import { PageContent } from "@/models/PageContent";
 import type { Metadata } from "next";
 import { cache } from "react";
+import { formatDate } from "@/lib/utils";
 
 const KAKI = "var(--cream)";
 
@@ -26,22 +27,16 @@ const getHomeData = cache(async () => {
   await dbConnect();
 
   const [settings, exhibitions, news, openCalls, cms] = await Promise.all([
-    Settings.findOne({}).select('heroSlides galleryName logoUrl homepageExtraTitle homepageExtraContent homepageExtraImage homepageExtra2Title homepageExtra2Content homepageExtra2Image').lean(),
-    Exhibition.find({}).select('title slug artist startDate endDate type coverImage exhibitionType').sort({ startDate: -1 }).lean(),
-    News.find({}).select('title link image source date').sort({ date: -1 }).limit(3).lean(),
-    OpenCall.find({ showOnHomepage: true }).select('title slug coverImage deadline').lean(),
-    PageContent.findOne({ slug: "home" }).select('seoTitle seoDescription ogImage').lean()
+    Settings.findOne({}).lean(),
+    Exhibition.find({}).sort({ startDate: -1 }).lean(),
+    News.find({}).sort({ date: -1 }).limit(3).lean(),
+    OpenCall.find({ showOnHomepage: true }).lean(),
+    PageContent.findOne({ slug: "home" }).lean()
   ]);
 
-  return JSON.parse(JSON.stringify({ settings, exhibitions, news, openCalls, cms }));
+  return { settings, exhibitions, news, openCalls, cms };
 });
 
-function formatDate(d: any) {
-  if (!d) return "";
-  return new Date(d).toLocaleDateString("en-GB", {
-    day: "numeric", month: "long", year: "numeric",
-  });
-}
 
 export async function generateMetadata(): Promise<Metadata> {
   const { cms } = await getHomeData();

@@ -27,13 +27,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         // Handle Images (up to 5)
         const imageFiles = formData.getAll("images") as File[];
         const uploadedImages = [];
-        const { put } = await import("@vercel/blob");
+        const { uploadImage } = await import("@/lib/cloudinary");
 
         for (const file of imageFiles.slice(0, 5)) {
-            const blob = await put(`open-calls/${id}/${file.name}`, file, {
-                access: 'public',
-            });
-            uploadedImages.push({ url: blob.url, publicId: blob.pathname });
+            const buffer = Buffer.from(await file.arrayBuffer());
+            const result = await uploadImage(buffer, `nodflo/open-calls/${id}`);
+            uploadedImages.push({ url: result.url, publicId: result.publicId });
         }
 
         // 1. Save Application

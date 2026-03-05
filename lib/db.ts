@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import '@/lib/models'; // Senior Architecture: Eager model registration for Serverless robustness
 
 interface GlobalWithMongoose {
   mongoose: { conn: typeof mongoose | null; promise: Promise<typeof mongoose> | null };
@@ -13,6 +12,13 @@ if (!cached) {
   cached = global.mongoose = { conn: null, promise: null };
 }
 
+// Senior Architecture: Strategic Singleton Registration
+// Ensures all models are registered exactly once per worker process to prevent Location31254 DB conflicts.
+if (!(global as any).modelsRegistered) {
+  require('@/lib/models');
+  (global as any).modelsRegistered = true;
+}
+
 async function dbConnect() {
   const MONGODB_URI = process.env.MONGODB_URI;
   if (!MONGODB_URI) {
@@ -23,8 +29,9 @@ async function dbConnect() {
 
   if (!cached.promise) {
     cached.promise = mongoose.connect(MONGODB_URI, {
-      bufferCommands: false,
       maxPoolSize: 10, // Senior Archivement: Prevent connection exhaustion
+      connectTimeoutMS: 10000,
+      socketTimeoutMS: 45000,
     });
   }
 

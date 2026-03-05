@@ -298,7 +298,7 @@ export default function AdminExhibitions() {
                                                 const file = e.target.files?.[0]; if (!file) return;
                                                 setUploading(true);
                                                 try {
-                                                    const res = await fetch(`/api/upload/blob?filename=${encodeURIComponent(file.name)}`, { method: "POST", body: file });
+                                                    const __fd = new FormData(); __fd.append("file", file); __fd.append("folder", "nodflo/content"); const res = await fetch("/api/upload", { method: "POST", body: __fd });
                                                     const data = await res.json(); if (data.url) setForm({ ...form, coverImage: data.url });
                                                 } finally { setUploading(false); }
                                             }} />
@@ -336,7 +336,7 @@ export default function AdminExhibitions() {
                                             </div>
                                             <input type="file" onChange={async (e) => {
                                                 const file = e.target.files?.[0]; if (!file) return;
-                                                const res = await fetch(`/api/upload/blob?filename=${encodeURIComponent(file.name)}`, { method: "POST", body: file });
+                                                const __fd = new FormData(); __fd.append("file", file); __fd.append("folder", "nodflo/content"); const res = await fetch("/api/upload", { method: "POST", body: __fd });
                                                 const data = await res.json(); if (data.url) setForm({ ...form, ogImage: data.url });
                                             }} />
                                         </div>
@@ -360,7 +360,7 @@ export default function AdminExhibitions() {
                                         try {
                                             const urls = [];
                                             for (const file of files) {
-                                                const res = await fetch(`/api/upload/blob?filename=${encodeURIComponent(file.name)}`, { method: "POST", body: file });
+                                                const __fd = new FormData(); __fd.append("file", file); __fd.append("folder", "nodflo/content"); const res = await fetch("/api/upload", { method: "POST", body: __fd });
                                                 const data = await res.json(); if (data.url) urls.push(data.url);
                                             }
                                             setForm({ ...form, images: [...form.images, ...urls] });
