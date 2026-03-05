@@ -89,7 +89,15 @@ export default async function HomePage() {
                 <Link href={`/exhibitions/${ex.slug}`} key={ex._id.toString()} className="exhibition-card">
                   <div className="exhibition-card__img-wrap" style={{ background: KAKI }}>
                     {ex.coverImage && (
-                      <img src={ex.coverImage} alt={ex.title} className="exhibition-card__img" />
+                      <Image
+                        src={ex.coverImage}
+                        alt={ex.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        priority={true}
+                        style={{ objectFit: 'cover' }}
+                        className="exhibition-card__img"
+                      />
                     )}
                   </div>
                   <div className="exhibition-card__tag">On View</div>
@@ -142,7 +150,14 @@ export default async function HomePage() {
                 <Link href={`/exhibitions/${ex.slug}`} key={ex._id.toString()} className="exhibition-card">
                   <div className="exhibition-card__img-wrap" style={{ background: KAKI }}>
                     {ex.coverImage && (
-                      <img src={ex.coverImage} alt={ex.title} className="exhibition-card__img" />
+                      <Image
+                        src={ex.coverImage}
+                        alt={ex.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        style={{ objectFit: 'cover' }}
+                        className="exhibition-card__img"
+                      />
                     )}
                   </div>
                   <div className="exhibition-card__tag" style={{ color: "#004085" }}>
@@ -174,7 +189,7 @@ export default async function HomePage() {
               {news.map((item: any) => (
                 <a key={item._id.toString()} href={item.link || "#"} target="_blank" rel="noopener noreferrer" className="news-card">
                   {item.image && (
-                    <div className="news-card__img-wrap" style={{ position: 'relative' }}>
+                    <div className="news-card__img-wrap">
                       <Image
                         src={item.image}
                         alt={item.title}
@@ -209,7 +224,14 @@ export default async function HomePage() {
                 <Link href={`/exhibitions/${ex.slug}`} key={ex._id.toString()} className="exhibition-card">
                   <div className="exhibition-card__img-wrap" style={{ background: KAKI }}>
                     {ex.coverImage && (
-                      <img src={ex.coverImage} alt={ex.title} className="exhibition-card__img" />
+                      <Image
+                        src={ex.coverImage}
+                        alt={ex.title}
+                        fill
+                        sizes="(max-width: 768px) 50vw, 25vw"
+                        style={{ objectFit: 'cover' }}
+                        className="exhibition-card__img"
+                      />
                     )}
                   </div>
                   <div className="exhibition-card__tag" style={{ color: "var(--grey-500)" }}>Archive</div>

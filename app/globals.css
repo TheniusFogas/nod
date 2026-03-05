@@ -448,6 +448,7 @@ p {
   overflow: hidden;
   background: var(--cream);
   margin-bottom: 20px;
+  position: relative;
 }
 
 .exhibition-card__img {
@@ -501,10 +502,11 @@ p {
 }
 
 .artist-card__img-wrap {
-  aspect-ratio: 1/1;
+  aspect-ratio: 3/4;
   overflow: hidden;
   background: var(--cream);
   margin-bottom: 16px;
+  position: relative;
 }
 
 .artist-card__img {
@@ -822,6 +824,7 @@ p {
   overflow: hidden;
   background: var(--cream);
   margin-bottom: 20px;
+  position: relative;
 }
 
 .news-card__img {

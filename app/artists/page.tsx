@@ -82,7 +82,7 @@ export default async function ArtistsPage() {
                                     <div className={`artist-grid ${(cms?.sidebarTitle || cms?.sidebarContent) ? "artist-grid--with-sidebar" : ""}`}>
                                         {artists.map((a: any) => (
                                             <Link href={`/artists/${a.slug}`} key={a._id?.toString() || a.slug || a.name} className="artist-card">
-                                                <div style={{ position: "relative", height: "100%", minHeight: 400 }}>
+                                                <div className="artist-card__img-wrap">
                                                     <Image
                                                         src={a.profileImage?.url || a.photo || FALLBACK}
                                                         alt={a.name}
@@ -94,9 +94,9 @@ export default async function ArtistsPage() {
                                                         style={{ objectFit: "cover", objectPosition: "center top" }}
                                                     />
                                                 </div>
-                                                <div className="artist-card__overlay">
-                                                    <div className="artist-card__name">{a.name}</div>
-                                                    <div className="artist-card__bio">{a.bio || "Exhibiting Artist"}</div>
+                                                <div className="artist-card__name">{a.name}</div>
+                                                <div className="artist-card__nationality" style={{ textTransform: "none", letterSpacing: "normal", color: "var(--grey-400)", fontSize: "0.875rem", lineHeight: 1.7 }}>
+                                                    {a.bio || "Exhibiting Artist"}
                                                 </div>
                                             </Link>
                                         ))}

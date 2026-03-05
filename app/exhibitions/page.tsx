@@ -8,6 +8,7 @@ import PageContent from "@/models/PageContent";
 import type { Metadata } from "next";
 import { formatDate } from "@/lib/utils";
 import { getExhibitionStatus } from "@/lib/exhibitions";
+import Image from "next/image";
 
 // Enable Incremental Static Regeneration (1 hr lifecycle mapping)
 export const revalidate = 3600;
@@ -99,7 +100,14 @@ export default async function ExhibitionsPage({ searchParams }: { searchParams: 
                                 {exhibitions.map((ex: any) => (
                                     <Link href={`/exhibitions/${ex.slug}`} key={ex._id?.toString() || ex.slug} className="exhibition-card">
                                         <div className="exhibition-card__img-wrap">
-                                            <img src={ex.coverImage || FALLBACK} alt={ex.title} className="exhibition-card__img" />
+                                            <Image
+                                                src={ex.coverImage || FALLBACK}
+                                                alt={ex.title}
+                                                fill
+                                                sizes="(max-width: 768px) 100vw, 50vw"
+                                                style={{ objectFit: 'cover' }}
+                                                className="exhibition-card__img"
+                                            />
                                         </div>
                                         <div className="exhibition-card__tag">
                                             {getExhibitionStatus(ex.startDate, ex.endDate) === "current" ? "On View" : getExhibitionStatus(ex.startDate, ex.endDate) === "upcoming" ? "Upcoming" : "Past"}
