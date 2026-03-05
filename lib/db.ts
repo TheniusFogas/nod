@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import '@/lib/models'; // Senior Architecture: Eager model registration for Serverless robustness
 
 interface GlobalWithMongoose {
   mongoose: { conn: typeof mongoose | null; promise: Promise<typeof mongoose> | null };
@@ -24,10 +25,6 @@ async function dbConnect() {
     cached.promise = mongoose.connect(MONGODB_URI, {
       bufferCommands: false,
       maxPoolSize: 10, // Senior Archivement: Prevent connection exhaustion
-    }).then((m) => {
-      // CRITICAL: Register all models immediately after connection
-      require('./models');
-      return m;
     });
   }
 

@@ -68,11 +68,28 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 export default async function ExhibitionDetailPage({ params }: { params: Promise<{ slug: string }> }) {
-    try {
-        const { slug } = await params;
-        const exhibition = await getExhibition(slug);
+    const { slug } = await params;
+    let exhibition: any = null;
 
-        if (!exhibition) return notFound();
+    try {
+        exhibition = await getExhibition(slug);
+    } catch (err: any) {
+        console.error(`[EXHIBITION_ERROR] Failed to fetch or serialize exhibition "${slug}":`, err);
+        return (
+            <div style={{ padding: 40, textAlign: 'center' }}>
+                <Nav />
+                <h1 style={{ marginTop: 100 }}>Something went wrong loading this exhibition.</h1>
+                <p className="text-muted">Error Details: {err.message || "Unknown Error"}</p>
+                <Footer />
+            </div>
+        );
+    }
+
+    if (!exhibition) return notFound();
+
+    try {
+        // Audit log for the user's request
+        console.log(`[EXHIBITION_AUDIT] Data for "${slug}":`, JSON.stringify(exhibition).slice(0, 500) + "...");
 
         const artistsArray = Array.isArray(exhibition.artists) ? exhibition.artists : [];
         const uiArtists = artistsArray
@@ -90,7 +107,6 @@ export default async function ExhibitionDetailPage({ params }: { params: Promise
         return (
             <>
                 <Nav dark />
-
                 <div className="exhibition-hero">
                     {exhibition.coverImage && (
                         <div style={{ width: "100%", height: "100%", position: "relative" }}>
@@ -98,7 +114,7 @@ export default async function ExhibitionDetailPage({ params }: { params: Promise
                                 src={exhibition.coverImage}
                                 alt={exhibition.title}
                                 fill
-                                priority // Ace LCP - Important for SEO/Speed
+                                priority
                                 sizes="100vw"
                                 style={{ objectFit: "cover" }}
                             />
@@ -210,13 +226,13 @@ export default async function ExhibitionDetailPage({ params }: { params: Promise
                 <Footer />
             </>
         );
-    } catch (e: any) {
-        // Fallback for production to prevent total site crash if one exhibition is corrupt
+    } catch (err: any) {
+        console.error(`[RENDER_ERROR] Failed to render exhibition page for "${slug}":`, err);
         return (
             <div style={{ padding: 40, textAlign: 'center' }}>
                 <Nav />
-                <h1 style={{ marginTop: 100 }}>Something went wrong loading this exhibition.</h1>
-                <p>Please try again later or contact support.</p>
+                <h1 style={{ marginTop: 100 }}>Something went wrong rendering this exhibition.</h1>
+                <p className="text-muted">{err.message || "Rendering error"}</p>
                 <Footer />
             </div>
         );

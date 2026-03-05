@@ -1,0 +1,107 @@
+﻿
+> nodflo@0.1.0 build
+> next build
+
+Ôľ▓ Next.js 16.1.6 (Turbopack)
+- Environments: .env.production.local, .env.local
+
+  Creating an optimized production build ...
+Ôťô Compiled successfully in 3.6s
+  Skipping validation of types
+  Collecting page data using 15 workers ...
+Ôťů [Mongoose] Centralized Model Registry initialized.
+Ôťů [Mongoose] Centralized Model Registry initialized.
+Ôťů [Mongoose] Centralized Model Registry initialized.
+Ôťů [Mongoose] Centralized Model Registry initialized.
+Ôťů [Mongoose] Centralized Model Registry initialized.
+Ôťů [Mongoose] Centralized Model Registry initialized.
+Ôťů [Mongoose] Centralized Model Registry initialized.
+Ôťů [Mongoose] Centralized Model Registry initialized.
+Ôťů [Mongoose] Centralized Model Registry initialized.
+Ôťů [Mongoose] Centralized Model Registry initialized.
+Ôťů [Mongoose] Centralized Model Registry initialized.
+Ôťů [Mongoose] Centralized Model Registry initialized.
+Ôťů [Mongoose] Centralized Model Registry initialized.
+Ôťů [Mongoose] Centralized Model Registry initialized.
+Ôťů [Mongoose] Centralized Model Registry initialized.
+Ôťů [Mongoose] Centralized Model Registry initialized.
+Ôťů [Mongoose] Centralized Model Registry initialized.
+Ôťů [Mongoose] Centralized Model Registry initialized.
+Ôťů [Mongoose] Centralized Model Registry initialized.
+Ôťů [Mongoose] Centralized Model Registry initialized.
+Ôťů [Mongoose] Centralized Model Registry initialized.
+Ôťů [Mongoose] Centralized Model Registry initialized.
+Ôťů [Mongoose] Centralized Model Registry initialized.
+Ôťů [Mongoose] Centralized Model Registry initialized.
+Ôťů [Mongoose] Centralized Model Registry initialized.
+Ôťů [Mongoose] Centralized Model Registry initialized.
+  Generating static pages using 15 workers (0/35) ...
+Ôťů [Mongoose] Centralized Model Registry initialized.
+  Generating static pages using 15 workers (8/35) 
+  Generating static pages using 15 workers (17/35) 
+  Generating static pages using 15 workers (26/35) 
+Ôťô Generating static pages using 15 workers (35/35) in 1749.5ms
+  Finalizing page optimization ...
+
+Route (app)                                          Revalidate  Expire
+Ôöî ÔŚő /                                                        1h      1y
+Ôöť ÔŚő /_not-found
+Ôöť Ăĺ /admin
+Ôöť Ăĺ /admin/artists
+Ôöť Ăĺ /admin/artists/database
+Ôöť Ăĺ /admin/exhibitions
+Ôöť Ăĺ /admin/login
+Ôöť Ăĺ /admin/messages
+Ôöť Ăĺ /admin/news
+Ôöť Ăĺ /admin/newsletter
+Ôöť Ăĺ /admin/open-calls
+Ôöť Ăĺ /admin/pages
+Ôöť Ăĺ /admin/settings
+Ôöť Ăĺ /admin/sponsors
+Ôöť Ăĺ /admin/team
+Ôöť Ăĺ /api/artists
+Ôöť Ăĺ /api/artists/[id]
+Ôöť Ăĺ /api/artists/database
+Ôöť Ăĺ /api/auth/[...nextauth]
+Ôöť Ăĺ /api/contact
+Ôöť Ăĺ /api/env-debug
+Ôöť Ăĺ /api/exhibitions
+Ôöť Ăĺ /api/exhibitions/[id]
+Ôöť Ăĺ /api/news
+Ôöť Ăĺ /api/news/[id]
+Ôöť Ăĺ /api/newsletter
+Ôöť Ăĺ /api/newsletter/send
+Ôöť Ăĺ /api/newsletter/unsubscribe
+Ôöť Ăĺ /api/open-calls
+Ôöť Ăĺ /api/open-calls/[id]
+Ôöť Ăĺ /api/open-calls/[id]/apply
+Ôöť Ăĺ /api/open-calls/applications/[id]/delete-assets
+Ôöť Ăĺ /api/pages
+Ôöť Ăĺ /api/settings
+Ôöť Ăĺ /api/sponsors
+Ôöť Ăĺ /api/sponsors/[id]
+Ôöť Ăĺ /api/team
+Ôöť Ăĺ /api/team/[id]
+Ôöť Ăĺ /api/upload
+Ôöť Ăĺ /api/upload/blob
+Ôöť ÔŚő /artists                                                 1h      1y
+Ôöť Ăĺ /artists/[slug]
+Ôöť ÔŚő /contact
+Ôöť Ăĺ /exhibitions
+Ôöť Ăĺ /exhibitions/[slug]
+Ôöť ÔŚő /news                                                    1h      1y
+Ôöť Ăĺ /news/[id]
+Ôöť Ăĺ /open-calls
+Ôöť Ăĺ /open-calls/[slug]
+Ôöť ÔŚő /sitemap.xml
+Ôöť ÔŚő /sponsors                                                1h      1y
+Ôöť ÔŚő /subscribe
+Ôöť ÔŚő /team                                                    1h      1y
+Ôöö ÔŚő /unsubscribe
+
+
+Ăĺ Proxy (Middleware)
+
+ÔŚő  (Static)   prerendered as static content
+Ăĺ  (Dynamic)  server-rendered on demand
+
