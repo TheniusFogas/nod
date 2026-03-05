@@ -190,15 +190,14 @@ export default async function ExhibitionDetailPage({ params }: { params: Promise
             </>
         );
     } catch (e: any) {
+        // Fallback for production to prevent total site crash if one exhibition is corrupt
         return (
-            <div style={{ padding: 40, fontFamily: 'monospace' }}>
+            <div style={{ padding: 40, textAlign: 'center' }}>
                 <Nav />
-                <h1 style={{ marginTop: 100 }}>Diagnostic Error</h1>
-                <pre style={{ background: '#f5f5f5', padding: 20 }}>{e.message}</pre>
-                <pre style={{ background: '#f5f5f5', padding: 20, whiteSpace: 'pre-wrap' }}>{e.stack}</pre>
+                <h1 style={{ marginTop: 100 }}>Something went wrong loading this exhibition.</h1>
+                <p>Please try again later or contact support.</p>
                 <Footer />
             </div>
         );
     }
 }
-
