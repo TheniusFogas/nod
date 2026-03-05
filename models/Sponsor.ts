@@ -9,3 +9,4 @@ const SponsorSchema = new Schema({
 }, { timestamps: true });
 
 export const Sponsor = models.Sponsor || mongoose.model('Sponsor', SponsorSchema);
+export default Sponsor;

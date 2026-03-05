@@ -10,3 +10,4 @@ const ArtistContactSchema = new Schema({
 }, { timestamps: true });
 
 export const ArtistContact = mongoose.models.ArtistContact || mongoose.model('ArtistContact', ArtistContactSchema);
+export default ArtistContact;

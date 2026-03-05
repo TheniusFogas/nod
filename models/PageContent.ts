@@ -13,3 +13,4 @@ const PageContentSchema = new Schema({
 }, { timestamps: true });
 
 export const PageContent = models.PageContent || mongoose.model('PageContent', PageContentSchema);
+export default PageContent;

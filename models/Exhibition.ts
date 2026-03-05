@@ -32,3 +32,4 @@ ExhibitionSchema.index({ type: 1, startDate: -1 }); // Critical Compound Index f
 ExhibitionSchema.index({ featured: 1, startDate: -1 }); // Performance for Homepage featured list
 
 export const Exhibition = models.Exhibition || mongoose.model('Exhibition', ExhibitionSchema);
+export default Exhibition;

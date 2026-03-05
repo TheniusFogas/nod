@@ -11,3 +11,4 @@ const TeamMemberSchema = new Schema({
 }, { timestamps: true });
 
 export const TeamMember = models.TeamMember || mongoose.model('TeamMember', TeamMemberSchema);
+export default TeamMember;

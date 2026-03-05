@@ -35,3 +35,5 @@ const OpenCallApplicationSchema = new Schema({
 
 export const OpenCall = models.OpenCall || mongoose.model('OpenCall', OpenCallSchema);
 export const OpenCallApplication = models.OpenCallApplication || mongoose.model('OpenCallApplication', OpenCallApplicationSchema);
+
+export default OpenCall;

@@ -18,3 +18,4 @@ const NewsSchema = new Schema({
 }, { timestamps: true });
 
 export const News = models.News || mongoose.model('News', NewsSchema);
+export default News;

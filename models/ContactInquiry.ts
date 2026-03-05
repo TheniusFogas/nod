@@ -9,3 +9,4 @@ const ContactInquirySchema = new Schema({
 }, { timestamps: true });
 
 export const ContactInquiry = models.ContactInquiry || mongoose.model('ContactInquiry', ContactInquirySchema);
+export default ContactInquiry;

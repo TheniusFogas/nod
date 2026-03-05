@@ -35,3 +35,4 @@ ArtistSchema.index({ membership: 1, order: 1 }); // Critical Compound Index for 
 ArtistSchema.index({ featured: 1, order: 1 }); // Performance for Homepage featured artists
 
 export const Artist = models.Artist || mongoose.model('Artist', ArtistSchema);
+export default Artist;

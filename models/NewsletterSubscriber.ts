@@ -9,3 +9,4 @@ const NewsletterSubscriberSchema = new Schema({
 }, { timestamps: true });
 
 export const NewsletterSubscriber = models.NewsletterSubscriber || mongoose.model('NewsletterSubscriber', NewsletterSubscriberSchema);
+export default NewsletterSubscriber;
