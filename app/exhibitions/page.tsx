@@ -50,11 +50,11 @@ export default async function ExhibitionsPage({ searchParams }: { searchParams: 
     }
 
     const exhibitions = await Exhibition.find(dbQuery)
-        .select('title slug artist startDate endDate type coverImage -__v -updatedAt')
+        .select('title slug artist startDate endDate type coverImage openingTime')
         .sort({ startDate: -1 })
         .lean();
 
-    const cms = await PageContent.findOne({ slug: "exhibitions" }).select('title description seoTitle seoDescription ogImage -__v -updatedAt').lean() as any;
+    const cms = await PageContent.findOne({ slug: "exhibitions" }).select('title description seoTitle seoDescription ogImage').lean() as any;
 
     return (
         <>
