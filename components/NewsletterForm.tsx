@@ -25,7 +25,7 @@ export default function NewsletterForm({ title = "Subscribe for Future Exhibitio
 
     if (status === "success") {
         return (
-            <div style={{ background: "var(--cream)", padding: "40px", textAlign: "center", borderRadius: "8px", border: "1px solid var(--grey-100)" }}>
+            <div style={{ background: "var(--cream)", padding: "40px", textAlign: "center", borderRadius: 0, border: "none" }}>
                 <h3 style={{ fontFamily: "var(--font-serif)", marginBottom: "12px" }}>Thank You!</h3>
                 <p style={{ color: "var(--grey-600)", fontSize: "0.9rem" }}>You have successfully subscribed to our newsletter. We'll keep you updated on upcoming exhibitions and events.</p>
             </div>
@@ -33,7 +33,7 @@ export default function NewsletterForm({ title = "Subscribe for Future Exhibitio
     }
 
     return (
-        <div style={{ background: "var(--cream)", padding: "40px", borderRadius: "8px", border: "1px solid var(--grey-100)" }}>
+        <div style={{ background: "var(--cream)", padding: "40px", borderRadius: 0, border: "none" }}>
             <h3 style={{ fontFamily: "var(--font-serif)", fontSize: "1.25rem", marginBottom: "24px", color: "var(--black)" }}>
                 {title}
             </h3>
