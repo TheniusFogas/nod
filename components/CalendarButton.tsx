@@ -1,7 +1,7 @@
 "use client";
 
-export function CalendarButton({ exhibition }: { exhibition: any }) {
-    if (!exhibition) return null;
+export function CalendarButton({ title, startDate, endDate, description, locName, locAddr }: { title: string, startDate: any, endDate: any, description: string, locName: string, locAddr: string }) {
+    if (!title) return null;
 
     const toSafeISO = (d: any) => {
         try {
@@ -12,13 +12,11 @@ export function CalendarButton({ exhibition }: { exhibition: any }) {
         } catch (e) { return ""; }
     };
 
-    const start = toSafeISO(exhibition.startDate);
-    const end = toSafeISO(exhibition.endDate);
-    const details = exhibition.description || "";
-    const locName = exhibition.location?.name || (typeof exhibition.location === 'string' ? exhibition.location : "NOD FLOW Gallery");
-    const locAddr = exhibition.location?.address ? `, ${exhibition.location.address}` : "";
+    const start = toSafeISO(startDate);
+    const end = toSafeISO(endDate);
+    const details = description || "";
 
-    const url = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(exhibition.title)}&dates=${start}/${end}&details=${encodeURIComponent(details)}&location=${encodeURIComponent(locName + locAddr)}`;
+    const url = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${start}/${end}&details=${encodeURIComponent(details)}&location=${encodeURIComponent(locName + locAddr)}`;
 
     return (
         <a

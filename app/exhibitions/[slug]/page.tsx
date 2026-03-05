@@ -19,9 +19,6 @@ import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 
-
-
-/*
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
     try {
         await dbConnect();
@@ -55,7 +52,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         return { title: `Error: ${err.message}` };
     }
 }
-*/
 
 export default async function ExhibitionDetailPage({ params }: { params: Promise<{ slug: string }> }) {
     await dbConnect();
@@ -70,6 +66,18 @@ export default async function ExhibitionDetailPage({ params }: { params: Promise
 
     // Aceasta este SINGURA cale prin care garantam ca obiectul e "curat"
     const exhibition = JSON.parse(JSON.stringify(rawExhibition));
+
+    // THE SMOKE TEST + AMPUTAREA PENTRU REACT KEYS
+    const cleanArtists = (exhibition.artists || []).filter((item: any) => item && item.artist);
+    if (cleanArtists.length > 0) {
+        console.log("SMOKE TEST (Exhibition Artists [0]):", JSON.stringify(cleanArtists[0], null, 2));
+    }
+
+    const uiArtists = cleanArtists.map((a: any) => ({
+        name: a.artist.name,
+        slug: a.artist.slug,
+        manualName: a.manualName
+    }));
 
     const locName = exhibition.location?.name || (typeof exhibition.location === 'string' ? exhibition.location : "NOD FLOW Gallery");
     const locAddress = exhibition.location?.address || "";
@@ -142,16 +150,16 @@ export default async function ExhibitionDetailPage({ params }: { params: Promise
                                     <div>
                                         <div style={{ fontSize: "0.65rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--grey-600)", marginBottom: 8 }}>Artists</div>
                                         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                                            {exhibition.artists && exhibition.artists.length > 0 ? (
-                                                exhibition.artists.filter((a: any) => a !== null && a !== undefined).map((a: any, i: number) => {
+                                            {uiArtists && uiArtists.length > 0 ? (
+                                                uiArtists.map((uiArtist: any, i: number) => {
                                                     return (
-                                                        <div key={i}>
-                                                            {a.artist && a.artist.slug ? (
-                                                                <Link href={`/artists/${a.artist.slug}`} className="artist-detail-link">
-                                                                    {a.artist.name || "Unnamed Artist"}
+                                                        <div key={`artist-mapped-${i}`}>
+                                                            {uiArtist.slug ? (
+                                                                <Link href={`/artists/${uiArtist.slug}`} className="artist-detail-link">
+                                                                    {uiArtist.name || "Unnamed Artist"}
                                                                 </Link>
                                                             ) : (
-                                                                <span>{a.manualName || a.artist?.name || "Unknown"}</span>
+                                                                <span>{uiArtist.manualName || uiArtist.name || "Unknown"}</span>
                                                             )}
                                                         </div>
                                                     );
@@ -167,7 +175,14 @@ export default async function ExhibitionDetailPage({ params }: { params: Promise
                                         <div style={{ marginBottom: 12 }}>
                                             {formatDate(exhibition.startDate)} — {formatDate(exhibition.endDate)}
                                         </div>
-                                        <CalendarButton exhibition={exhibition} />
+                                        <CalendarButton
+                                            title={exhibition.title}
+                                            startDate={exhibition.startDate}
+                                            endDate={exhibition.endDate}
+                                            description={exhibition.description}
+                                            locName={locName}
+                                            locAddr={locAddress}
+                                        />
                                     </div>
 
                                     <div>
