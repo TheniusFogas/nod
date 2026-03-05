@@ -7,7 +7,8 @@ import PageContent from "@/models/PageContent";
 
 import type { Metadata } from "next";
 
-export const dynamic = "force-dynamic";
+// Enable Incremental Static Regeneration (1 hr lifecycle mapping)
+export const revalidate = 3600;
 
 export async function generateMetadata(): Promise<Metadata> {
     await dbConnect();

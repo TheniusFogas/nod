@@ -35,6 +35,7 @@ export default async function RootLayout({
 }) {
   await dbConnect();
   const settings = await Settings.findOne({}).lean() as any;
+  const currentYear = new Date().getFullYear();
 
   return (
     <html lang="en">

@@ -34,7 +34,7 @@ function ensureConfigured() {
 export async function uploadImage(
     fileBuffer: Buffer,
     folder: string = "nodflo"
-): Promise<{ url: string; publicId: string }> {
+): Promise<{ url: string; publicId: string; blurDataURL: string }> {
     ensureConfigured();
     return new Promise((resolve, reject) => {
         console.log(`Cloudinary: Starting stream upload to folder "${folder}"...`);
@@ -52,7 +52,9 @@ export async function uploadImage(
                 console.log("Cloudinary Upload Success:", result.secure_url);
                 resolve({
                     url: result.secure_url,
-                    publicId: result.public_id
+                    publicId: result.public_id,
+                    // Senior Architecture restriction: Generate instant LCP BlurHash via Cloudinary Edge Transformation
+                    blurDataURL: result.secure_url.replace('/upload/', '/upload/w_10,e_blur:1000,f_auto,q_auto/')
                 });
             }
         );

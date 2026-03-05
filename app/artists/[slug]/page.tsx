@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import Image from "next/image";
 
 export default function ArtistDetailPage() {
     const params = useParams();
@@ -42,8 +43,19 @@ export default function ArtistDetailPage() {
                     <div className="container">
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 80, alignItems: "start" }}>
                             <div>
-                                {artist.photo && (
-                                    <img src={artist.photo} alt={artist.name} style={{ width: "100%", aspectRatio: "3/4", objectFit: "cover", marginBottom: 24 }} />
+                                {((artist.profileImage && artist.profileImage.url) || artist.photo) && (
+                                    <div style={{ width: "100%", aspectRatio: "3/4", position: "relative", marginBottom: 24, backgroundColor: "var(--cream)" }}>
+                                        <Image
+                                            src={artist.profileImage?.url || artist.photo}
+                                            alt={artist.name}
+                                            fill
+                                            sizes="(max-width: 768px) 100vw, 33vw"
+                                            priority={true}
+                                            placeholder={artist.profileImage?.blurDataURL ? "blur" : "empty"}
+                                            blurDataURL={artist.profileImage?.blurDataURL}
+                                            style={{ objectFit: "cover" }}
+                                        />
+                                    </div>
                                 )}
                                 {artist.nationality && (
                                     <p style={{ fontSize: "0.75rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--grey-600)", marginBottom: 8 }}>

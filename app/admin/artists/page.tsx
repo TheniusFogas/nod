@@ -6,8 +6,11 @@ function slugify(s: string) {
 }
 
 const EMPTY = {
-    name: "", slug: "", bio: "", content: "", nationality: "", website: "",
-    photo: "", membership: "Bronze", order: 0, visibilityEnd: "", gallery: []
+    name: "", slug: "", bio: "", content: "", nationality: "", photo: "",
+    profileImage: { url: "", public_id: "", blurDataURL: "" },
+    socials: { instagram: "", website: "" },
+    tags: "", exhibitions: [],
+    membership: "Bronze", order: 0, visibilityEnd: "", gallery: []
 };
 
 export default function AdminArtists() {
@@ -38,7 +41,11 @@ export default function AdminArtists() {
         setSaving(true);
         try {
             const { _id, __v, createdAt, updatedAt, ...cleanForm } = form;
-            const payload = { ...cleanForm, slug: form.slug || slugify(form.name) };
+            const payload = {
+                ...cleanForm,
+                slug: form.slug || slugify(form.name),
+                tags: typeof form.tags === 'string' ? form.tags.split(',').map((t: string) => t.trim()).filter((t: string) => t) : form.tags,
+            };
             const res = await fetch(editing ? `/api/artists/${editing._id}` : "/api/artists", {
                 method: editing ? "PUT" : "POST",
                 headers: { "Content-Type": "application/json" },
@@ -162,9 +169,20 @@ export default function AdminArtists() {
                                         <input className="form-input" type="date" value={form.visibilityEnd} onChange={(e) => setForm({ ...form, visibilityEnd: e.target.value })} />
                                     </div>
                                 </div>
+                                <div className="form-grid">
+                                    <div className="form-group">
+                                        <label className="form-label">Socials - Website</label>
+                                        <input className="form-input" type="url" value={form.socials?.website || ""} onChange={(e) => setForm({ ...form, socials: { ...form.socials, website: e.target.value } })} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Socials - Instagram (e.g., @artist)</label>
+                                        <input className="form-input" value={form.socials?.instagram || ""} onChange={(e) => setForm({ ...form, socials: { ...form.socials, instagram: e.target.value } })} />
+                                    </div>
+                                </div>
+
                                 <div className="form-group">
-                                    <label className="form-label">Website</label>
-                                    <input className="form-input" type="url" value={form.website} onChange={(e) => setForm({ ...form, website: e.target.value })} />
+                                    <label className="form-label">Tags (comma separated for fast indexing)</label>
+                                    <input className="form-input" placeholder="abstract, painting, contemporary" value={Array.isArray(form.tags) ? form.tags.join(', ') : (form.tags || "")} onChange={(e) => setForm({ ...form, tags: e.target.value })} />
                                 </div>
 
                                 <div className="form-group">
@@ -183,9 +201,16 @@ export default function AdminArtists() {
                                                 const file = e.target.files?.[0]; if (!file) return;
                                                 setUploadingTarget("photo");
                                                 try {
-                                                    const res = await fetch(`/api/upload/blob?filename=${encodeURIComponent(file.name)}`, { method: "POST", body: file });
+                                                    const imgForm = new FormData();
+                                                    imgForm.append("file", file);
+                                                    imgForm.append("folder", "nodflo/artists");
+                                                    const res = await fetch(`/api/upload`, { method: "POST", body: imgForm });
                                                     const data = await res.json();
-                                                    if (data.url) setForm({ ...form, photo: data.url });
+                                                    if (data.url) setForm({
+                                                        ...form,
+                                                        photo: data.url, // Legacy fallback mapping
+                                                        profileImage: { url: data.url, public_id: data.publicId, blurDataURL: data.blurDataURL }
+                                                    });
                                                 } catch { alert("Upload failed"); } finally { setUploadingTarget(null); }
                                             }} />
                                         </div>

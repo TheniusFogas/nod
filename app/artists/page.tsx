@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import Image from "next/image";
 import dbConnect from "@/lib/db";
 import Artist from "@/models/Artist";
 import PageContent from "@/models/PageContent";
@@ -9,7 +10,8 @@ const FALLBACK = "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w
 
 import type { Metadata } from "next";
 
-export const dynamic = "force-dynamic";
+// Vercel Serverless Optimization: Cache output on Edge.
+export const revalidate = 3600;
 
 export async function generateMetadata(): Promise<Metadata> {
     await dbConnect();
@@ -72,11 +74,22 @@ export default async function ArtistsPage() {
                                     <div className={`artist-grid ${(cms?.sidebarTitle || cms?.sidebarContent) ? "artist-grid--with-sidebar" : ""}`}>
                                         {artists.map((a: any) => (
                                             <Link href={`/artists/${a.slug}`} key={a._id.toString()} className="artist-card">
-                                                <div className="artist-card__img-wrap">
-                                                    <img src={a.photo || FALLBACK} alt={a.name} className="artist-card__img" />
+                                                <div style={{ position: "relative", height: "100%", minHeight: 400 }}>
+                                                    <Image
+                                                        src={a.profileImage?.url || a.photo || FALLBACK}
+                                                        alt={a.name}
+                                                        className="artist-card__img"
+                                                        fill
+                                                        sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                                        placeholder={a.profileImage?.blurDataURL ? "blur" : "empty"}
+                                                        blurDataURL={a.profileImage?.blurDataURL}
+                                                        style={{ objectFit: "cover", objectPosition: "center top" }}
+                                                    />
                                                 </div>
-                                                <div className="artist-card__name">{a.name}</div>
-                                                {a.nationality && <div className="artist-card__nationality">{a.nationality}</div>}
+                                                <div className="artist-card__overlay">
+                                                    <div className="artist-card__name">{a.name}</div>
+                                                    <div className="artist-card__bio">{a.bio || "Exhibiting Artist"}</div>
+                                                </div>
                                             </Link>
                                         ))}
                                     </div>

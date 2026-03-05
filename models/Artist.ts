@@ -6,9 +6,19 @@ const ArtistSchema = new Schema({
     bio: { type: String }, // Short bio for listing
     content: { type: String }, // Rich text for detail page
     nationality: { type: String },
-    website: { type: String },
-    photo: { type: String },
-    gallery: [{ type: String }], // Array of image URLs
+    photo: { type: String }, // Legacy fallback
+    profileImage: {
+        public_id: { type: String },
+        url: { type: String },
+        blurDataURL: { type: String }
+    },
+    socials: {
+        instagram: { type: String },
+        website: { type: String }
+    },
+    tags: [{ type: String }], // Fast filtering
+    exhibitions: [{ type: Schema.Types.ObjectId, ref: 'Exhibition' }], // True relational architecture
+    gallery: [{ type: String }], // Array of image URLs (can be refactored to Object later)
     membership: {
         type: String,
         enum: ['Platinum', 'Gold', 'Silver', 'Bronze'],
@@ -18,5 +28,9 @@ const ArtistSchema = new Schema({
     visibilityEnd: { type: Date }, // Until when it shows on site
     featured: { type: Boolean, default: false },
 }, { timestamps: true });
+
+ArtistSchema.index({ slug: 1 }, { unique: true });
+ArtistSchema.index({ tags: 1 }); // Required index for filtering arrays instantly
+ArtistSchema.index({ membership: 1, order: 1 }); // Critical Compound Index for hierarchical rendering
 
 export default models.Artist || mongoose.model('Artist', ArtistSchema);

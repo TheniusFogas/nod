@@ -8,6 +8,7 @@ import { OpenCall } from "@/models/OpenCall";
 import Settings from "@/models/Settings";
 import { HeroLoader } from "@/components/HeroLoader";
 import { NewsletterStrip } from "@/components/NewsletterStrip";
+import Image from "next/image";
 
 function formatDate(d: any) {
   if (!d) return "";
@@ -21,7 +22,9 @@ import type { Metadata } from "next";
 
 const KAKI = "var(--cream)";
 
-export const dynamic = "force-dynamic";
+// ISR caching: Regenerate page once an hour maximum to serve from Vercel Edge Cache.
+// dynamic = "force-dynamic" is catastrophic for high traffic serverless deployments.
+export const revalidate = 3600;
 
 export async function generateMetadata(): Promise<Metadata> {
   await dbConnect();
@@ -80,8 +83,17 @@ export default async function HomePage() {
             <div className="exhibition-grid">
               {current.map((ex: any) => (
                 <Link href={`/exhibitions/${ex.slug}`} key={ex._id.toString()} className="exhibition-card">
-                  <div className="exhibition-card__img-wrap" style={{ background: KAKI }}>
-                    {ex.coverImage && <img src={ex.coverImage} alt={ex.title} className="exhibition-card__img" />}
+                  <div className="exhibition-card__img-wrap" style={{ background: KAKI, position: 'relative' }}>
+                    {ex.coverImage && (
+                      <Image
+                        src={ex.coverImage}
+                        alt={ex.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        priority={true} // LCP optimization for Above the Fold
+                        style={{ objectFit: 'cover' }}
+                      />
+                    )}
                   </div>
                   <div className="exhibition-card__tag">On View</div>
                   <div className="exhibition-card__title">{ex.title}</div>

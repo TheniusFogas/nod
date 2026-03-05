@@ -8,7 +8,7 @@ const FALLBACK_PHOTO = "https://images.unsplash.com/photo-1507003211169-0a1dd722
 
 import type { Metadata } from "next";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 export async function generateMetadata(): Promise<Metadata> {
     await dbConnect();

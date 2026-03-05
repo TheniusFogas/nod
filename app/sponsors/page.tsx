@@ -5,7 +5,7 @@ import Sponsor from "@/models/Sponsor";
 import PageContent from "@/models/PageContent";
 import type { Metadata } from "next";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 export async function generateMetadata(): Promise<Metadata> {
     await dbConnect();

@@ -27,4 +27,7 @@ const ExhibitionSchema = new Schema({
     featured: { type: Boolean, default: false },
 }, { timestamps: true });
 
+ExhibitionSchema.index({ slug: 1 }, { unique: true });
+ExhibitionSchema.index({ type: 1, startDate: -1 }); // Critical Compound Index for 'Currently on View', 'Past' queries
+
 export default models.Exhibition || mongoose.model('Exhibition', ExhibitionSchema);
