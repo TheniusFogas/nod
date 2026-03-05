@@ -13,6 +13,7 @@ import { PageContent } from "@/models/PageContent";
 import type { Metadata } from "next";
 import { cache } from "react";
 import { formatDate } from "@/lib/utils";
+import { getExhibitionStatus } from "@/lib/exhibitions";
 
 const KAKI = "var(--cream)";
 
@@ -54,9 +55,9 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function HomePage() {
   const { settings, exhibitions, news, openCalls } = await getHomeData();
 
-  const current = exhibitions.filter((e: any) => e.type === "current").slice(0, 3);
-  const upcoming = exhibitions.filter((e: any) => e.type === "upcoming").slice(0, 3);
-  const past = exhibitions.filter((e: any) => e.type === "past").slice(0, 3);
+  const current = exhibitions.filter((e: any) => getExhibitionStatus(e.startDate, e.endDate) === "current").slice(0, 3);
+  const upcoming = exhibitions.filter((e: any) => getExhibitionStatus(e.startDate, e.endDate) === "upcoming").slice(0, 3);
+  const past = exhibitions.filter((e: any) => getExhibitionStatus(e.startDate, e.endDate) === "past").slice(0, 3);
 
   const slides = settings?.heroSlides || [];
 

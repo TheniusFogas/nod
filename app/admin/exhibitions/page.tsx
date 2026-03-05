@@ -1,14 +1,16 @@
 "use client";
 import { useState, useEffect } from "react";
+import { getExhibitionStatus } from "@/lib/exhibitions";
 
 const EMPTY = {
     title: "",
     slug: "",
     exhibitionType: "Solo",
     artists: [] as { artist?: string; manualName?: string }[],
-    type: "current",
+    type: "current", // Deprecated but kept to satisfy legacy schema bounds
     startDate: "",
     endDate: "",
+    openingTime: "",
     location: {
         name: "NOD FLOW Gallery",
         address: "",
@@ -59,6 +61,7 @@ export default function AdminExhibitions() {
             type: ex.type || "current",
             startDate: ex.startDate?.slice(0, 10) || "",
             endDate: ex.endDate?.slice(0, 10) || "",
+            openingTime: ex.openingTime || "",
             location: {
                 name: ex.location?.name || (typeof ex.location === 'string' ? ex.location : "NOD FLOW Gallery"),
                 address: ex.location?.address || "",
@@ -149,7 +152,12 @@ export default function AdminExhibitions() {
                                     </div>
                                     <div style={{ fontWeight: 500 }}>{ex.artist}</div>
                                 </td>
-                                <td><span className={`tag tag--${ex.type}`}>{ex.type}</span></td>
+                                <td>
+                                    {(() => {
+                                        const status = getExhibitionStatus(ex.startDate, ex.endDate);
+                                        return <span className={`tag tag--${status}`}>{status}</span>;
+                                    })()}
+                                </td>
                                 <td style={{ fontSize: "0.8rem", color: "var(--grey-600)" }}>
                                     {ex.startDate ? new Date(ex.startDate).toLocaleDateString("en-GB") : "—"} —{" "}
                                     {ex.endDate ? new Date(ex.endDate).toLocaleDateString("en-GB") : "—"}
@@ -189,13 +197,9 @@ export default function AdminExhibitions() {
                                         </select>
                                     </div>
                                     <div className="form-group">
-                                        <label className="form-label">Visibility Status</label>
-                                        <select className="form-select" value={form.type}
-                                            onChange={(e) => setForm({ ...form, type: e.target.value })}>
-                                            <option value="current">Current</option>
-                                            <option value="upcoming">Upcoming</option>
-                                            <option value="past">Past</option>
-                                        </select>
+                                        <label className="form-label">Ora Vernisaj (opțional)</label>
+                                        <input className="form-input" type="text" value={form.openingTime || ""} placeholder="e.g. 18:00"
+                                            onChange={(e) => setForm({ ...form, openingTime: e.target.value })} />
                                     </div>
                                 </div>
 

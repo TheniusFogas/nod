@@ -12,7 +12,7 @@ import type { Metadata } from "next";
 import { cache } from "react";
 import Image from "next/image";
 import { formatDate } from "@/lib/utils";
-
+import { getExhibitionStatus } from "@/lib/exhibitions";
 // Senior Architecture: Incremental Static Regeneration (ISR)
 export const revalidate = 3600; // Cache for 1 hour, background reval
 
@@ -28,7 +28,6 @@ const getExhibition = cache(async (slug: string) => {
             path: 'artists.artist',
             select: 'name slug profileImage' // Only fetch what's needed
         })
-        .select('-__v -updatedAt')
         .lean();
 
     if (!rawRes) return null;
@@ -111,7 +110,7 @@ export default async function ExhibitionDetailPage({ params }: { params: Promise
                     )}
                     <div className="exhibition-hero__info">
                         <div style={{ fontSize: "0.7rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--accent)", marginBottom: 16 }}>
-                            {exhibition.type === "current" ? "On View" : exhibition.type === "upcoming" ? "Upcoming" : "Past"}
+                            {getExhibitionStatus(exhibition.startDate, exhibition.endDate) === "current" ? "On View" : getExhibitionStatus(exhibition.startDate, exhibition.endDate) === "upcoming" ? "Upcoming" : "Past"}
                         </div>
                         <h1 style={{ fontFamily: "var(--font-serif)", color: "var(--white)", fontWeight: 400, fontSize: "clamp(2rem,5vw,4rem)", marginBottom: 12 }}>
                             {exhibition.title}
@@ -181,6 +180,11 @@ export default async function ExhibitionDetailPage({ params }: { params: Promise
                                             <div style={{ fontSize: "0.65rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--grey-600)", marginBottom: 8 }}>Dates</div>
                                             <div style={{ marginBottom: 12 }}>
                                                 {formatDate(exhibition.startDate)} — {formatDate(exhibition.endDate)}
+                                                {exhibition.openingTime && (
+                                                    <div style={{ marginTop: 4, fontStyle: "italic", color: "var(--grey-500)" }}>
+                                                        Vernisaj: {exhibition.openingTime}
+                                                    </div>
+                                                )}
                                             </div>
                                             <CalendarButton
                                                 title={exhibition.title}

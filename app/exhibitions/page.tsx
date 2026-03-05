@@ -7,6 +7,7 @@ import PageContent from "@/models/PageContent";
 
 import type { Metadata } from "next";
 import { formatDate } from "@/lib/utils";
+import { getExhibitionStatus } from "@/lib/exhibitions";
 import Image from "next/image";
 
 // Enable Incremental Static Regeneration (1 hr lifecycle mapping)
@@ -35,9 +36,23 @@ export default async function ExhibitionsPage({ searchParams }: { searchParams: 
     const { type } = await searchParams;
     const filter = type || "all";
 
-    const exhibitions = await Exhibition.find(
-        filter === "all" ? {} : { type: filter }
-    ).select('title slug artist startDate endDate type coverImage -__v -updatedAt').sort({ startDate: -1 }).lean();
+    let dbQuery = {};
+    const now = new Date();
+    // Neutralize to start of day for stable querying
+    now.setHours(0, 0, 0, 0);
+
+    if (filter === "current") {
+        dbQuery = { startDate: { $lte: now }, endDate: { $gte: now } };
+    } else if (filter === "upcoming") {
+        dbQuery = { startDate: { $gt: now } };
+    } else if (filter === "past") {
+        dbQuery = { endDate: { $lt: now } };
+    }
+
+    const exhibitions = await Exhibition.find(dbQuery)
+        .select('title slug artist startDate endDate type coverImage -__v -updatedAt')
+        .sort({ startDate: -1 })
+        .lean();
 
     const cms = await PageContent.findOne({ slug: "exhibitions" }).select('title description seoTitle seoDescription ogImage -__v -updatedAt').lean() as any;
 
@@ -95,7 +110,7 @@ export default async function ExhibitionsPage({ searchParams }: { searchParams: 
                                             />
                                         </div>
                                         <div className="exhibition-card__tag">
-                                            {ex.type === "current" ? "On View" : ex.type === "upcoming" ? "Upcoming" : "Past"}
+                                            {getExhibitionStatus(ex.startDate, ex.endDate) === "current" ? "On View" : getExhibitionStatus(ex.startDate, ex.endDate) === "upcoming" ? "Upcoming" : "Past"}
                                         </div>
                                         <div className="exhibition-card__title">{ex.title}</div>
                                         <div className="exhibition-card__artist">{ex.artist}</div>

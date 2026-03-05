@@ -21,7 +21,7 @@ export default function SubscribePage() {
                             </p>
                         </div>
 
-                        <div className="admin-card" style={{ padding: 40, background: "var(--white)", boxShadow: "0 20px 40px rgba(0,0,0,0.05)" }}>
+                        <div style={{ padding: 40, background: "var(--white)" }}>
                             <NewsletterForm />
                         </div>
 

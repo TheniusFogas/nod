@@ -9,9 +9,10 @@ const ExhibitionSchema = new Schema({
         manualName: { type: String }
     }],
     exhibitionType: { type: String, enum: ['Solo', 'Group'], default: 'Solo' },
-    type: { type: String, enum: ['current', 'upcoming', 'past'], default: 'current' },
+    type: { type: String, enum: ['current', 'upcoming', 'past'], default: 'current' }, // Deprecated but kept for safety
     startDate: { type: Date },
     endDate: { type: Date },
+    openingTime: { type: String },
     location: {
         name: { type: String, default: 'NOD FLOW Gallery' },
         address: { type: String },
