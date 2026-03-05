@@ -19,8 +19,8 @@ export const revalidate = 3600;
 const getArtistsData = cache(async () => {
     await dbConnect();
     const [rawArtists, rawCms] = await Promise.all([
-        Artist.find({}).select('name slug bio profileImage photo membership order -__v -updatedAt').lean(),
-        PageContent.findOne({ slug: "artists" }).select('title description seoTitle seoDescription ogImage sidebarTitle sidebarContent -__v -updatedAt').lean()
+        Artist.find({}).select('name slug bio profileImage photo membership order').lean(),
+        PageContent.findOne({ slug: "artists" }).select('title description seoTitle seoDescription ogImage sidebarTitle sidebarContent').lean()
     ]);
 
     return { artists: rawArtists, cms: rawCms };

@@ -27,8 +27,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function NewsPage() {
     await dbConnect();
-    const news = await News.find({}).select('title link image source date excerpt content -__v -updatedAt').sort({ date: -1 }).lean();
-    const cms = await PageContent.findOne({ slug: "news" }).select('title description seoTitle seoDescription ogImage -__v -updatedAt').lean() as any;
+    const news = await News.find({}).select('title link image source date excerpt content').sort({ date: -1 }).lean();
+    const cms = await PageContent.findOne({ slug: "news" }).select('title description seoTitle seoDescription ogImage').lean() as any;
 
     return (
         <>

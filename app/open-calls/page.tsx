@@ -26,8 +26,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function OpenCallsPage() {
     await dbConnect();
-    const calls = await OpenCall.find({}).select('title slug deadline isActive -__v -updatedAt').sort({ deadline: -1 }).lean();
-    const cms = await PageContent.findOne({ slug: "open-calls" }).select('title description seoTitle seoDescription ogImage -__v -updatedAt').lean() as any;
+    const calls = await OpenCall.find({}).select('title slug deadline isActive').sort({ deadline: -1 }).lean();
+    const cms = await PageContent.findOne({ slug: "open-calls" }).select('title description seoTitle seoDescription ogImage').lean() as any;
 
     const active = (calls || []).filter((c: any) => c.isActive);
     const closed = (calls || []).filter((c: any) => !c.isActive);
