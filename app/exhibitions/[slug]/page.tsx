@@ -21,6 +21,7 @@ export const dynamic = "force-dynamic";
 
 
 
+/*
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
     try {
         await dbConnect();
@@ -54,6 +55,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         return { title: `Error: ${err.message}` };
     }
 }
+*/
 
 export default async function ExhibitionDetailPage({ params }: { params: Promise<{ slug: string }> }) {
     await dbConnect();
