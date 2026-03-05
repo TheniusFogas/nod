@@ -87,16 +87,9 @@ export default async function HomePage() {
             <div className="exhibition-grid">
               {current.map((ex: any) => (
                 <Link href={`/exhibitions/${ex.slug}`} key={ex._id.toString()} className="exhibition-card">
-                  <div className="exhibition-card__img-wrap" style={{ background: KAKI, position: 'relative' }}>
+                  <div className="exhibition-card__img-wrap" style={{ background: KAKI }}>
                     {ex.coverImage && (
-                      <Image
-                        src={ex.coverImage}
-                        alt={ex.title}
-                        fill
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        priority={true} // LCP optimization for Above the Fold
-                        style={{ objectFit: 'cover' }}
-                      />
+                      <img src={ex.coverImage} alt={ex.title} className="exhibition-card__img" />
                     )}
                   </div>
                   <div className="exhibition-card__tag">On View</div>
@@ -147,15 +140,9 @@ export default async function HomePage() {
             <div className="exhibition-grid">
               {upcoming.map((ex: any) => (
                 <Link href={`/exhibitions/${ex.slug}`} key={ex._id.toString()} className="exhibition-card">
-                  <div className="exhibition-card__img-wrap" style={{ background: KAKI, position: 'relative' }}>
+                  <div className="exhibition-card__img-wrap" style={{ background: KAKI }}>
                     {ex.coverImage && (
-                      <Image
-                        src={ex.coverImage}
-                        alt={ex.title}
-                        fill
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        style={{ objectFit: 'cover' }}
-                      />
+                      <img src={ex.coverImage} alt={ex.title} className="exhibition-card__img" />
                     )}
                   </div>
                   <div className="exhibition-card__tag" style={{ color: "#004085" }}>
@@ -220,15 +207,9 @@ export default async function HomePage() {
             <div className="exhibition-grid">
               {past.map((ex: any) => (
                 <Link href={`/exhibitions/${ex.slug}`} key={ex._id.toString()} className="exhibition-card">
-                  <div className="exhibition-card__img-wrap" style={{ background: KAKI, position: 'relative' }}>
+                  <div className="exhibition-card__img-wrap" style={{ background: KAKI }}>
                     {ex.coverImage && (
-                      <Image
-                        src={ex.coverImage}
-                        alt={ex.title}
-                        fill
-                        sizes="(max-width: 768px) 50vw, 25vw"
-                        style={{ objectFit: 'cover' }}
-                      />
+                      <img src={ex.coverImage} alt={ex.title} className="exhibition-card__img" />
                     )}
                   </div>
                   <div className="exhibition-card__tag" style={{ color: "var(--grey-500)" }}>Archive</div>
