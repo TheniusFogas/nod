@@ -10,6 +10,7 @@ const sections = [
             { href: "/admin", label: "Dashboard", icon: "◈" },
             { href: "/admin/settings", label: "Settings", icon: "⚙" },
             { href: "/admin/exhibitions", label: "Exhibitions", icon: "◻" },
+            { href: "/admin/media", label: "Media Library", icon: "🖼" },
             { href: "/admin/open-calls", label: "Open Calls", icon: "◷" },
             { href: "/admin/news", label: "News", icon: "◈" },
         ],

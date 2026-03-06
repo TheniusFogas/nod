@@ -78,4 +78,22 @@ export async function uploadImage(
     });
 }
 
+export async function listMedia(folder: string = "nodflo/content") {
+    ensureConfigured();
+    const result = await cloudinary.api.resources({
+        type: 'upload',
+        prefix: folder,
+        max_results: 100,
+        context: true,
+        tags: true
+    });
+    return result.resources;
+}
+
+export async function deleteMedia(publicId: string) {
+    ensureConfigured();
+    const result = await cloudinary.uploader.destroy(publicId);
+    return result;
+}
+
 export default cloudinary;
