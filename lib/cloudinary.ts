@@ -80,14 +80,27 @@ export async function uploadImage(
 
 export async function listMedia(folder: string = "nodflo/content") {
     ensureConfigured();
-    const result = await cloudinary.api.resources({
-        type: 'upload',
-        prefix: folder,
-        max_results: 100,
-        context: true,
-        tags: true
-    });
-    return result.resources;
+    let allResources: any[] = [];
+    let nextCursor: string | undefined = undefined;
+
+    do {
+        const result: any = await cloudinary.api.resources({
+            type: 'upload',
+            prefix: folder,
+            max_results: 500,
+            context: true,
+            tags: true,
+            next_cursor: nextCursor
+        });
+
+        allResources = allResources.concat(result.resources);
+        nextCursor = result.next_cursor;
+    } while (nextCursor);
+
+    // Sort by newest first
+    allResources.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+    return allResources;
 }
 
 export async function deleteMedia(publicId: string) {
