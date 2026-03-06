@@ -353,12 +353,12 @@ export default function AdminExhibitions() {
                                                     try {
                                                         const __fd = new FormData(); __fd.append("file", file); __fd.append("folder", "nodflo/content");
                                                         const res = await fetch("/api/upload", { method: "POST", body: __fd });
-                                                        if (!res.ok) throw new Error("Upload failed");
-                                                        const data = await res.json();
+                                                        let data; try { data = await res.json(); } catch (e) { }
+                                                        if (!res.ok) throw new Error(data?.error || "Upload failed");
                                                         if (data.url) setForm(f => ({ ...f, coverImage: data.url }));
-                                                    } catch (err) {
+                                                    } catch (err: any) {
                                                         console.error("Upload error:", err);
-                                                        alert("Failed to upload cover image");
+                                                        alert("Error: " + err.message);
                                                     } finally { setUploading(false); }
                                                 }} />
                                             </div>
@@ -384,17 +384,16 @@ export default function AdminExhibitions() {
                                                 for (const file of files) {
                                                     const __fd = new FormData(); __fd.append("file", file); __fd.append("folder", "nodflo/content");
                                                     const res = await fetch("/api/upload", { method: "POST", body: __fd });
-                                                    if (res.ok) {
-                                                        const data = await res.json();
-                                                        if (data.url) urls.push(data.url);
-                                                    }
+                                                    let data; try { data = await res.json(); } catch (e) { }
+                                                    if (!res.ok) throw new Error(data?.error || "Upload failed");
+                                                    if (data.url) urls.push(data.url);
                                                 }
                                                 if (urls.length > 0) {
                                                     setForm(f => ({ ...f, images: [...f.images, ...urls] }));
                                                 }
-                                            } catch (err) {
+                                            } catch (err: any) {
                                                 console.error("Gallery upload error:", err);
-                                                alert("Some images failed to upload");
+                                                alert("Error: " + err.message);
                                             } finally { setUploading(false); }
                                         }} />
                                     </div>
