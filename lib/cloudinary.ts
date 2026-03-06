@@ -3,9 +3,13 @@ import { v2 as cloudinary } from "cloudinary";
 let isConfigured = false;
 function ensureConfigured() {
     if (isConfigured) return;
-    const cloudName = (process.env.CLOUDINARY_CLOUD_NAME || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "dsy11x1je")?.trim();
-    const apiKey = (process.env.CLOUDINARY_API_KEY || "257811981813534")?.trim();
-    const apiSecret = (process.env.CLOUDINARY_API_SECRET || "vM0ld1fAOudMmfs-BSlB6arekHk")?.trim();
+    const cloudName = (process.env.CLOUDINARY_CLOUD_NAME || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME)?.trim();
+    const apiKey = process.env.CLOUDINARY_API_KEY?.trim();
+    const apiSecret = process.env.CLOUDINARY_API_SECRET?.trim();
+
+    if (!cloudName || !apiKey || !apiSecret) {
+        console.error("Cloudinary Error: Missing environment variables", { cloudName, apiKey, hasSecret: !!apiSecret });
+    }
 
     cloudinary.config({
         cloud_name: cloudName,
@@ -22,6 +26,7 @@ export async function uploadImage(
 ): Promise<{ url: string; publicId: string; blurDataURL: string }> {
     ensureConfigured();
 
+    // Explicit timestamp to ensure we know exactly what is signed
     const timestamp = Math.round(new Date().getTime() / 1000);
 
     return new Promise((resolve, reject) => {
