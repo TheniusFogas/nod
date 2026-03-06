@@ -30,6 +30,53 @@ function slugify(str: string) {
     return str.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
 }
 
+const timeOptions: string[] = [];
+for (let h = 0; h < 24; h++) {
+    for (let m = 0; m < 60; m += 30) {
+        timeOptions.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`);
+    }
+}
+
+function ArtistSelect({ allArtists, value, onChange }: { allArtists: any[], value: string, onChange: (v: string) => void }) {
+    const [search, setSearch] = useState("");
+    const [open, setOpen] = useState(false);
+
+    useEffect(() => {
+        if (value) {
+            setSearch(allArtists.find(a => a._id === value)?.name || "");
+        } else {
+            setSearch("");
+        }
+    }, [value, allArtists]);
+
+    const filtered = allArtists.filter(a => a.name.toLowerCase().includes(search.toLowerCase()));
+
+    return (
+        <div style={{ position: "relative" }}>
+            <input
+                className="form-input"
+                value={search}
+                onChange={(e) => { setSearch(e.target.value); setOpen(true); onChange(""); }}
+                onFocus={() => setOpen(true)}
+                onBlur={() => setTimeout(() => setOpen(false), 200)}
+                placeholder="Search artist..."
+                style={{ width: "100%", background: "white" }}
+            />
+            {open && (
+                <div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "white", border: "1px solid #ccc", maxHeight: 200, overflowY: "auto", zIndex: 10 }}>
+                    <div style={{ padding: 8, cursor: "pointer", borderBottom: "1px solid #eee", fontSize: "0.8rem", color: "var(--grey-600)" }} onMouseDown={() => { onChange(""); setSearch(""); setOpen(false); }}>-- No Selection --</div>
+                    {filtered.map(a => (
+                        <div key={a._id} style={{ padding: 8, cursor: "pointer", borderBottom: "1px solid #eee", fontSize: "0.9rem" }} onMouseDown={() => { onChange(a._id); setSearch(a.name); setOpen(false); }}>
+                            {a.name}
+                        </div>
+                    ))}
+                    {filtered.length === 0 && <div style={{ padding: 8, color: "#999", fontSize: "0.8rem" }}>No artists found</div>}
+                </div>
+            )}
+        </div>
+    );
+}
+
 export default function AdminExhibitions() {
     const [exhibitions, setExhibitions] = useState<any[]>([]);
     const [allArtists, setAllArtists] = useState<any[]>([]);
@@ -187,20 +234,13 @@ export default function AdminExhibitions() {
                                         onChange={(e) => setForm({ ...form, title: e.target.value, slug: slugify(e.target.value) })} />
                                 </div>
 
-                                <div className="form-grid">
-                                    <div className="form-group">
-                                        <label className="form-label">Exhibition Type</label>
-                                        <select className="form-select" value={form.exhibitionType}
-                                            onChange={(e) => setForm({ ...form, exhibitionType: e.target.value })}>
-                                            <option value="Solo">Solo Exhibition</option>
-                                            <option value="Group">Group Exhibition</option>
-                                        </select>
-                                    </div>
-                                    <div className="form-group">
-                                        <label className="form-label">Ora Vernisaj (opțional)</label>
-                                        <input className="form-input" type="text" value={form.openingTime || ""} placeholder="e.g. 18:00"
-                                            onChange={(e) => setForm({ ...form, openingTime: e.target.value })} />
-                                    </div>
+                                <div className="form-group">
+                                    <label className="form-label">Exhibition Type</label>
+                                    <select className="form-select" value={form.exhibitionType}
+                                        onChange={(e) => setForm({ ...form, exhibitionType: e.target.value })}>
+                                        <option value="Solo">Solo Exhibition</option>
+                                        <option value="Group">Group Exhibition</option>
+                                    </select>
                                 </div>
 
                                 <div className="form-group">
@@ -214,15 +254,15 @@ export default function AdminExhibitions() {
                                             <div key={idx} style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
                                                 <div style={{ flex: 1.5 }}>
                                                     <label style={{ fontSize: "0.6rem", textTransform: "uppercase", display: "block", marginBottom: 4 }}>Select Artist (from DB)</label>
-                                                    <select className="form-select" value={entry.artist || ""}
-                                                        onChange={(e) => {
+                                                    <ArtistSelect
+                                                        allArtists={allArtists}
+                                                        value={entry.artist || ""}
+                                                        onChange={(val) => {
                                                             const newArtists = [...form.artists];
-                                                            newArtists[idx].artist = e.target.value || undefined;
+                                                            newArtists[idx].artist = val || undefined;
                                                             setForm({ ...form, artists: newArtists });
-                                                        }}>
-                                                        <option value="">-- Optional: Choose --</option>
-                                                        {allArtists.map(a => <option key={a._id} value={a._id}>{a.name}</option>)}
-                                                    </select>
+                                                        }}
+                                                    />
                                                 </div>
                                                 <div style={{ textAlign: "center", color: "var(--grey-300)", paddingBottom: 10 }}>or</div>
                                                 <div style={{ flex: 1 }}>
@@ -270,11 +310,19 @@ export default function AdminExhibitions() {
 
                             {/* Right Column */}
                             <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-                                <div className="form-grid">
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 24 }}>
                                     <div className="form-group">
                                         <label className="form-label">Start Date</label>
                                         <input className="form-input" type="date" value={form.startDate}
                                             onChange={(e) => setForm({ ...form, startDate: e.target.value })} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Ora Vernisaj</label>
+                                        <select className="form-select" value={form.openingTime || ""}
+                                            onChange={(e) => setForm({ ...form, openingTime: e.target.value })}>
+                                            <option value="">-- None --</option>
+                                            {timeOptions.map(t => <option key={t} value={t}>{t}</option>)}
+                                        </select>
                                     </div>
                                     <div className="form-group">
                                         <label className="form-label">End Date</label>
@@ -283,30 +331,57 @@ export default function AdminExhibitions() {
                                     </div>
                                 </div>
 
-                                <div className="form-group">
-                                    <label className="form-label">Cover Image</label>
-                                    <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-                                        <div style={{ width: 120, height: 80, background: "#eee", borderRadius: 4, overflow: "hidden", position: "relative" }}>
-                                            {form.coverImage ? (
-                                                <>
-                                                    <img src={form.coverImage} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                                                    <button type="button" onClick={() => setForm({ ...form, coverImage: "" })}
-                                                        style={{ position: "absolute", top: 4, right: 4, background: "#ef4444", color: "white", border: "none", borderRadius: "50%", width: 18, height: 18, fontSize: 10, cursor: "pointer" }}>×</button>
-                                                </>
-                                            ) : (
-                                                <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.6rem", color: "#999" }}>NO IMAGE</div>
-                                            )}
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, alignItems: "start" }}>
+                                    <div className="form-group">
+                                        <label className="form-label">Cover Image</label>
+                                        <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+                                            <div style={{ width: 120, height: 80, background: "#eee", borderRadius: 4, overflow: "hidden", position: "relative" }}>
+                                                {form.coverImage ? (
+                                                    <>
+                                                        <img src={form.coverImage} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                                                        <button type="button" onClick={() => setForm({ ...form, coverImage: "" })}
+                                                            style={{ position: "absolute", top: 4, right: 4, background: "#ef4444", color: "white", border: "none", borderRadius: "50%", width: 18, height: 18, fontSize: 10, cursor: "pointer" }}>×</button>
+                                                    </>
+                                                ) : (
+                                                    <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.6rem", color: "#999" }}>NO IMAGE</div>
+                                                )}
+                                            </div>
+                                            <div style={{ flex: 1 }}>
+                                                <input type="file" onChange={async (e) => {
+                                                    const file = e.target.files?.[0]; if (!file) return;
+                                                    setUploading(true);
+                                                    try {
+                                                        const __fd = new FormData(); __fd.append("file", file); __fd.append("folder", "nodflo/content"); const res = await fetch("/api/upload", { method: "POST", body: __fd });
+                                                        const data = await res.json(); if (data.url) setForm({ ...form, coverImage: data.url });
+                                                    } finally { setUploading(false); }
+                                                }} />
+                                            </div>
                                         </div>
-                                        <div style={{ flex: 1 }}>
-                                            <input type="file" onChange={async (e) => {
-                                                const file = e.target.files?.[0]; if (!file) return;
-                                                setUploading(true);
-                                                try {
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label className="form-label">Installation Views</label>
+                                        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 12 }}>
+                                            {form.images.map((img, i) => (
+                                                <div key={i} style={{ position: "relative", aspectRatio: "4/3", background: "#eee" }}>
+                                                    <img src={img} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                                                    <button onClick={() => setForm({ ...form, images: form.images.filter((_, j) => j !== i) })}
+                                                        style={{ position: "absolute", top: -4, right: -4, background: "#ef4444", color: "white", border: "none", borderRadius: "50%", width: 16, height: 16, fontSize: 8, cursor: "pointer" }}>×</button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <input type="file" multiple onChange={async (e) => {
+                                            const files = Array.from(e.target.files || []); if (!files.length) return;
+                                            setUploading(true);
+                                            try {
+                                                const urls = [];
+                                                for (const file of files) {
                                                     const __fd = new FormData(); __fd.append("file", file); __fd.append("folder", "nodflo/content"); const res = await fetch("/api/upload", { method: "POST", body: __fd });
-                                                    const data = await res.json(); if (data.url) setForm({ ...form, coverImage: data.url });
-                                                } finally { setUploading(false); }
-                                            }} />
-                                        </div>
+                                                    const data = await res.json(); if (data.url) urls.push(data.url);
+                                                }
+                                                setForm({ ...form, images: [...form.images, ...urls] });
+                                            } finally { setUploading(false); }
+                                        }} />
                                     </div>
                                 </div>
 
@@ -347,30 +422,7 @@ export default function AdminExhibitions() {
                                     </div>
                                 </div>
 
-                                <div className="form-group">
-                                    <label className="form-label">Installation Views (Gallery)</label>
-                                    <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 8, marginBottom: 12 }}>
-                                        {form.images.map((img, i) => (
-                                            <div key={i} style={{ position: "relative", aspectRatio: "4/3", background: "#eee" }}>
-                                                <img src={img} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                                                <button onClick={() => setForm({ ...form, images: form.images.filter((_, j) => j !== i) })}
-                                                    style={{ position: "absolute", top: -4, right: -4, background: "#ef4444", color: "white", border: "none", borderRadius: "50%", width: 16, height: 16, fontSize: 8, cursor: "pointer" }}>×</button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <input type="file" multiple onChange={async (e) => {
-                                        const files = Array.from(e.target.files || []); if (!files.length) return;
-                                        setUploading(true);
-                                        try {
-                                            const urls = [];
-                                            for (const file of files) {
-                                                const __fd = new FormData(); __fd.append("file", file); __fd.append("folder", "nodflo/content"); const res = await fetch("/api/upload", { method: "POST", body: __fd });
-                                                const data = await res.json(); if (data.url) urls.push(data.url);
-                                            }
-                                            setForm({ ...form, images: [...form.images, ...urls] });
-                                        } finally { setUploading(false); }
-                                    }} />
-                                </div>
+
                             </div>
                         </div>
 
