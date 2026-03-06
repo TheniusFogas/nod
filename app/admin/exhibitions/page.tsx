@@ -351,8 +351,14 @@ export default function AdminExhibitions() {
                                                     const file = e.target.files?.[0]; if (!file) return;
                                                     setUploading(true);
                                                     try {
-                                                        const __fd = new FormData(); __fd.append("file", file); __fd.append("folder", "nodflo/content"); const res = await fetch("/api/upload", { method: "POST", body: __fd });
-                                                        const data = await res.json(); if (data.url) setForm({ ...form, coverImage: data.url });
+                                                        const __fd = new FormData(); __fd.append("file", file); __fd.append("folder", "nodflo/content");
+                                                        const res = await fetch("/api/upload", { method: "POST", body: __fd });
+                                                        if (!res.ok) throw new Error("Upload failed");
+                                                        const data = await res.json();
+                                                        if (data.url) setForm(f => ({ ...f, coverImage: data.url }));
+                                                    } catch (err) {
+                                                        console.error("Upload error:", err);
+                                                        alert("Failed to upload cover image");
                                                     } finally { setUploading(false); }
                                                 }} />
                                             </div>
@@ -374,12 +380,21 @@ export default function AdminExhibitions() {
                                             const files = Array.from(e.target.files || []); if (!files.length) return;
                                             setUploading(true);
                                             try {
-                                                const urls = [];
+                                                const urls: string[] = [];
                                                 for (const file of files) {
-                                                    const __fd = new FormData(); __fd.append("file", file); __fd.append("folder", "nodflo/content"); const res = await fetch("/api/upload", { method: "POST", body: __fd });
-                                                    const data = await res.json(); if (data.url) urls.push(data.url);
+                                                    const __fd = new FormData(); __fd.append("file", file); __fd.append("folder", "nodflo/content");
+                                                    const res = await fetch("/api/upload", { method: "POST", body: __fd });
+                                                    if (res.ok) {
+                                                        const data = await res.json();
+                                                        if (data.url) urls.push(data.url);
+                                                    }
                                                 }
-                                                setForm({ ...form, images: [...form.images, ...urls] });
+                                                if (urls.length > 0) {
+                                                    setForm(f => ({ ...f, images: [...f.images, ...urls] }));
+                                                }
+                                            } catch (err) {
+                                                console.error("Gallery upload error:", err);
+                                                alert("Some images failed to upload");
                                             } finally { setUploading(false); }
                                         }} />
                                     </div>
@@ -415,8 +430,12 @@ export default function AdminExhibitions() {
                                             </div>
                                             <input type="file" onChange={async (e) => {
                                                 const file = e.target.files?.[0]; if (!file) return;
-                                                const __fd = new FormData(); __fd.append("file", file); __fd.append("folder", "nodflo/content"); const res = await fetch("/api/upload", { method: "POST", body: __fd });
-                                                const data = await res.json(); if (data.url) setForm({ ...form, ogImage: data.url });
+                                                const __fd = new FormData(); __fd.append("file", file); __fd.append("folder", "nodflo/content");
+                                                const res = await fetch("/api/upload", { method: "POST", body: __fd });
+                                                if (res.ok) {
+                                                    const data = await res.json();
+                                                    if (data.url) setForm(f => ({ ...f, ogImage: data.url }));
+                                                }
                                             }} />
                                         </div>
                                     </div>
